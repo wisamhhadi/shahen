@@ -1,0 +1,1107 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-shipping-fast text-primary me-2"></i>
+                {% if object %}
+                    تعديل الطلب: #{{ object.id }}
+                {% else %}
+                    إضافة طلب جديد
+                {% endif %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% if object %}
+                    تعديل بيانات ومعلومات الطلب في النظام
+                {% else %}
+                    إضافة طلب جديد للنقل والتوصيل
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_order' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="orderForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                
+                <!-- Order Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            معلومات الطلب الأساسية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- User Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.user.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-primary me-1"></i>
+                                    {{ form.user.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.user }}
+                                {% for error in form.user.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر المستخدم صاحب الطلب</div>
+                            </div>
+
+                            <!-- Order Type Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.order_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-route text-primary me-1"></i>
+                                    {{ form.order_type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.order_type }}
+                                {% for error in form.order_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">حدد نوع الرحلة المطلوبة</div>
+                            </div>
+
+                            <!-- Collection Area -->
+                            <div class="col-12">
+                                <label for="{{ form.collection_area.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                                    {{ form.collection_area.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-map-marker-alt text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" name="{{ form.collection_area.name }}" id="{{ form.collection_area.id_for_label }}" value="{{ form.collection_area.value|default:'' }}">
+                                </div>
+                                {% for error in form.collection_area.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">أدخل نقطة التجمع أو نقطة الانطلاق</div>
+                            </div>
+
+                            <!-- Collection Area Details -->
+                            <div class="col-12">
+                                <label for="{{ form.collection_area_details.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-info-circle text-primary me-1"></i>
+                                    {{ form.collection_area_details.label }}
+                                </label>
+                                <textarea class="form-control border-2" name="{{ form.collection_area_details.name }}" id="{{ form.collection_area_details.id_for_label }}" rows="3">{{ form.collection_area_details.value|default:'' }}</textarea>
+                                {% for error in form.collection_area_details.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفاصيل إضافية حول نقطة التجمع (اختياري)</div>
+                            </div>
+
+                            <!-- Distance -->
+                            <div class="col-md-6">
+                                <label for="{{ form.distance.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-road text-primary me-1"></i>
+                                    {{ form.distance.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-road text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" name="{{ form.distance.name }}" id="{{ form.distance.id_for_label }}" value="{{ form.distance.value|default:'' }}">
+                                    <span class="input-group-text border-2 text-muted">كم</span>
+                                </div>
+                                {% for error in form.distance.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" style="height: 25px; width: 60px;margin: 10px;" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}" {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل الطلب</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignment Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            تعيين الموارد
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Delivery Company -->
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-success me-1"></i>
+                                    {{ form.company.label }}
+                                </label>
+                                {{ form.company }}
+                                {% for error in form.company.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر شركة النقل المسؤولة</div>
+                            </div>
+
+                            <!-- Captain -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-id-badge text-success me-1"></i>
+                                    {{ form.captain.label }}
+                                </label>
+                                {{ form.captain }}
+                                {% for error in form.captain.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر السائق المكلف بالطلب</div>
+                            </div>
+
+                            <!-- Employee -->
+                            <div class="col-md-6">
+                                <label for="{{ form.employee.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-tie text-success me-1"></i>
+                                    {{ form.employee.label }}
+                                </label>
+                                {{ form.employee }}
+                                {% for error in form.employee.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">الموظف المسؤول عن الطلب</div>
+                            </div>
+
+                            <!-- Rejection Reason -->
+                            <div class="col-md-6">
+                                <label for="{{ form.rejection_reason.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                    {{ form.rejection_reason.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.rejection_reason.name }}" id="{{ form.rejection_reason.id_for_label }}" value="{{ form.rejection_reason.value|default:'' }}">
+                                {% for error in form.rejection_reason.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">سبب إلغاء الطلب (إن وجد)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workers and Costs Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-hard-hat me-2"></i>
+                            العمال والتكاليف
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Loading Workers -->
+                            <div class="col-md-6">
+                                <label for="{{ form.loading_workers_count.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-users text-warning me-1"></i>
+                                    {{ form.loading_workers_count.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-users text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.loading_workers_count.name }}" id="{{ form.loading_workers_count.id_for_label }}" value="{{ form.loading_workers_count.value|default:0 }}">
+                                    <span class="input-group-text border-2 text-muted">عامل</span>
+                                </div>
+                                {% for error in form.loading_workers_count.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.loading_workers_cost.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-warning me-1"></i>
+                                    {{ form.loading_workers_cost.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.loading_workers_cost.name }}" id="{{ form.loading_workers_cost.id_for_label }}" value="{{ form.loading_workers_cost.value|default:0 }}">
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.loading_workers_cost.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Delivering Workers -->
+                            <div class="col-md-6">
+                                <label for="{{ form.delivering_workers_count.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dolly text-warning me-1"></i>
+                                    {{ form.delivering_workers_count.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dolly text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.delivering_workers_count.name }}" id="{{ form.delivering_workers_count.id_for_label }}" value="{{ form.delivering_workers_count.value|default:0 }}">
+                                    <span class="input-group-text border-2 text-muted">عامل</span>
+                                </div>
+                                {% for error in form.delivering_workers_count.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.delivering_workers_cost.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-money-bill-wave text-warning me-1"></i>
+                                    {{ form.delivering_workers_cost.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-money-bill-wave text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.delivering_workers_cost.name }}" id="{{ form.delivering_workers_cost.id_for_label }}" value="{{ form.delivering_workers_cost.value|default:0 }}">
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.delivering_workers_cost.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Total Cost Display -->
+                            <div class="col-12">
+                                <div class="alert alert-info border-0 bg-light">
+                                    <div class="row text-center">
+                                        <div class="col-md-4">
+                                            <i class="fas fa-calculator text-info me-1"></i>
+                                            <strong>إجمالي تكلفة التحميل:</strong>
+                                            <span id="totalLoadingCost" class="text-success fw-bold">0 دينار</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <i class="fas fa-calculator text-info me-1"></i>
+                                            <strong>إجمالي تكلفة التفريغ:</strong>
+                                            <span id="totalDeliveringCost" class="text-success fw-bold">0 دينار</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <i class="fas fa-coins text-info me-1"></i>
+                                            <strong>إجمالي تكلفة العمال:</strong>
+                                            <span id="totalWorkersCost" class="text-primary fw-bold fs-5">0 دينار</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-flag me-2"></i>
+                            حالة الطلب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Captain Status -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain_status.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-id-badge text-info me-1"></i>
+                                    {{ form.captain_status.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.captain_status.name }}" id="{{ form.captain_status.id_for_label }}" value="{{ form.captain_status.value|default:'' }}">
+                                {% for error in form.captain_status.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">حالة السائق الحالية</div>
+                            </div>
+
+                            <!-- Client Status -->
+                            <div class="col-md-6">
+                                <label for="{{ form.client_status.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-info me-1"></i>
+                                    {{ form.client_status.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.client_status.name }}" id="{{ form.client_status.id_for_label }}" value="{{ form.client_status.value|default:'' }}">
+                                {% for error in form.client_status.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">حالة الزبون الحالية</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ratings Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-star me-2"></i>
+                            التقييمات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Client Rating -->
+                            <div class="col-md-6">
+                                <label for="{{ form.client_rating.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-check text-success me-1"></i>
+                                    {{ form.client_rating.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-star text-warning"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.client_rating.name }}" id="{{ form.client_rating.id_for_label }}" value="{{ form.client_rating.value|default:0 }}" min="0" max="5">
+                                    <span class="input-group-text border-2 text-muted">من 5</span>
+                                </div>
+                                {% for error in form.client_rating.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="rating-stars" data-rating="{{ form.client_rating.value|default:0 }}" data-target="{{ form.client_rating.id_for_label }}">
+                                    <i class="fas fa-star" data-star="1"></i>
+                                    <i class="fas fa-star" data-star="2"></i>
+                                    <i class="fas fa-star" data-star="3"></i>
+                                    <i class="fas fa-star" data-star="4"></i>
+                                    <i class="fas fa-star" data-star="5"></i>
+                                </div>
+                            </div>
+
+                            <!-- Captain Rating -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain_rating.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-id-badge text-success me-1"></i>
+                                    {{ form.captain_rating.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-star text-warning"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.captain_rating.name }}" id="{{ form.captain_rating.id_for_label }}" value="{{ form.captain_rating.value|default:0 }}" min="0" max="5">
+                                    <span class="input-group-text border-2 text-muted">من 5</span>
+                                </div>
+                                {% for error in form.captain_rating.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="rating-stars" data-rating="{{ form.captain_rating.value|default:0 }}" data-target="{{ form.captain_rating.id_for_label }}">
+                                    <i class="fas fa-star" data-star="1"></i>
+                                    <i class="fas fa-star" data-star="2"></i>
+                                    <i class="fas fa-star" data-star="3"></i>
+                                    <i class="fas fa-star" data-star="4"></i>
+                                    <i class="fas fa-star" data-star="5"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+
+                <!-- Current Documents Display -->
+                {% if object.manifest or object.captain_doc or object.client_doc %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-check me-2"></i>
+                            الوثائق المرفوعة حالياً
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if object.manifest %}
+                        <div class="mb-3">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-file-alt me-1"></i>
+                                صورة المنفست
+                            </h6>
+                            <a href="{{ object.manifest.url }}" target="_blank">
+                                <img src="{{ object.manifest.url }}" class="img-fluid rounded border simple-image-preview">
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if object.captain_doc %}
+                        <div class="mb-3">
+                            <h6 class="text-success mb-2">
+                                <i class="fas fa-id-badge me-1"></i>
+                                صورة تعهد السائق
+                            </h6>
+                            <a href="{{ object.captain_doc.url }}" target="_blank">
+                                <img src="{{ object.captain_doc.url }}" class="img-fluid rounded border simple-image-preview">
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if object.client_doc %}
+                        <div class="mb-3">
+                            <h6 class="text-info mb-2">
+                                <i class="fas fa-user me-1"></i>
+                                صورة تعهد المستخدم
+                            </h6>
+                            <a href="{{ object.client_doc.url }}" target="_blank">
+                                <img src="{{ object.client_doc.url }}" class="img-fluid rounded border simple-image-preview">
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Documents Upload Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-upload me-2"></i>
+                            {% if object %}تحديث الوثائق{% else %}رفع الوثائق{% endif %}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Manifest -->
+                        <div class="mb-3">
+                            <label for="{{ form.manifest.id_for_label }}" class="form-label fw-bold text-dark">
+                                <i class="fas fa-file-alt text-primary me-1"></i>
+                                {{ form.manifest.label }}
+                            </label>
+                            {{ form.manifest }}
+                            {% for error in form.manifest.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">صورة المنفست أو قائمة البضائع</div>
+                        </div>
+
+                        <!-- Captain Document -->
+                        <div class="mb-3">
+                            <label for="{{ form.captain_doc.id_for_label }}" class="form-label fw-bold text-dark">
+                                <i class="fas fa-id-badge text-success me-1"></i>
+                                {{ form.captain_doc.label }}
+                            </label>
+                            {{ form.captain_doc }}
+                            {% for error in form.captain_doc.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">صورة تعهد أو توقيع السائق</div>
+                        </div>
+
+                        <!-- Client Document -->
+                        <div class="mb-3">
+                            <label for="{{ form.client_doc.id_for_label }}" class="form-label fw-bold text-dark">
+                                <i class="fas fa-user text-info me-1"></i>
+                                {{ form.client_doc.label }}
+                            </label>
+                            {{ form.client_doc }}
+                            {% for error in form.client_doc.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">صورة تعهد أو توقيع المستخدم</div>
+                        </div>
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                {% if object %}
+                                    ترك الحقل فارغاً سيحتفظ بالوثيقة الحالية
+                                {% else %}
+                                    يمكن رفع الوثائق لاحقاً إذا لم تكن متوفرة الآن
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-sticky-note me-2"></i>
+                            ملاحظات إضافية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label for="{{ form.note.id_for_label }}" class="form-label fw-bold text-dark">
+                            <i class="fas fa-edit text-dark me-1"></i>
+                            {{ form.note.label }}
+                        </label>
+                        <textarea class="form-control border-2" name="{{ form.note.name }}" id="{{ form.note.id_for_label }}" rows="4">{{ form.note.value|default:'' }}</textarea>
+                        {% for error in form.note.errors %}
+                            <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">أي ملاحظات إضافية حول الطلب</div>
+                    </div>
+                </div>
+
+                <!-- Order History Section (for Edit Mode) -->
+                {% if object.created or object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            سجل الطلب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object.created %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <strong>تاريخ الإنشاء:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.created|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if object.updated %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <strong>آخر تعديل:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if object.id %}
+                        <hr class="my-3">
+                        <div class="row text-center">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="fas fa-hashtag text-primary me-2"></i>
+                                    <strong>رقم الطلب:</strong>
+                                </div>
+                                <span class="badge bg-primary fs-6">#{{ object.id }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Order Summary (for Edit Mode) -->
+                {% if object %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            ملخص الطلب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span><i class="fas fa-user text-primary me-1"></i>المستخدم:</span>
+                                    <strong>{{ object.user|default:"غير محدد" }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span><i class="fas fa-route text-primary me-1"></i>نوع الرحلة:</span>
+                                    <strong>{{ object.get_order_type_display|default:"غير محدد" }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span><i class="fas fa-building text-success me-1"></i>الناقل:</span>
+                                    <strong>{{ object.company|default:"غير محدد" }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span><i class="fas fa-id-badge text-success me-1"></i>السائق:</span>
+                                    <strong>{{ object.captain|default:"غير محدد" }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2">
+                                    <span><i class="fas fa-road text-info me-1"></i>المسافة:</span>
+                                    <strong>{{ object.distance|default:"0" }} كم</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                {% if object %}تحديث الطلب{% else %}إنشاء الطلب{% endif %}
+                            </button>
+
+                            {% if object %}
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                استعادة القيم الأصلية
+                            </button>
+                            {% else %}
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="fas fa-eraser me-2"></i>
+                                مسح النموذج
+                            </button>
+                            {% endif %}
+
+                            <a href="{% url 'list_order' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Rating Stars Styling */
+    .rating-stars {
+        margin-top: 5px;
+        display: flex;
+        gap: 2px;
+    }
+
+    .rating-stars i {
+        color: #ddd;
+        cursor: pointer;
+        font-size: 1.2em;
+        transition: all 0.2s ease;
+    }
+
+    .rating-stars i:hover,
+    .rating-stars i.active {
+        color: #ffc107;
+        transform: scale(1.1);
+    }
+
+    .rating-stars i:hover ~ i {
+        color: #ddd;
+    }
+
+    /* Simple Image Preview Styles */
+    .simple-image-preview {
+        max-height: 150px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .simple-image-preview:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Card hover effects */
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Form control focus styling */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    /* Input group styling */
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+
+    /* Alert styling */
+    .alert-sm {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    /* Badge styling */
+    .badge {
+        font-size: 0.875em;
+    }
+
+    /* Cost calculation display styling */
+    #totalWorkersCost {
+        border: 2px dashed #0d6efd;
+        padding: 5px 10px;
+        border-radius: 5px;
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+
+    /* Form switch styling */
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+
+    /* Custom button styling */
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Custom card header styling */
+    .card-header {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .col-md-6 {
+            margin-bottom: 1rem;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .input-group-text {
+            min-width: 45px;
+            justify-content: center;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality (for edit mode)
+    {% if object %}
+    const originalValues = {
+        user: '{{ object.user.pk|default:"" }}',
+        collection_area: '{{ object.collection_area|escapejs }}',
+        collection_area_details: '{{ object.collection_area_details|escapejs }}',
+        company: '{{ object.company.pk|default:"" }}',
+        captain: '{{ object.captain.pk|default:"" }}',
+        rejection_reason: '{{ object.rejection_reason|escapejs }}',
+        loading_workers_count: '{{ object.loading_workers_count|default:"0" }}',
+        loading_workers_cost: '{{ object.loading_workers_cost|default:"0" }}',
+        delivering_workers_count: '{{ object.delivering_workers_count|default:"0" }}',
+        delivering_workers_cost: '{{ object.delivering_workers_cost|default:"0" }}',
+        distance: '{{ object.distance|default:"" }}',
+        order_type: '{{ object.order_type|default:"" }}',
+        captain_status: '{{ object.captain_status|escapejs }}',
+        client_status: '{{ object.client_status|escapejs }}',
+        note: '{{ object.note|escapejs }}',
+        client_rating: '{{ object.client_rating|default:"0" }}',
+        captain_rating: '{{ object.captain_rating|default:"0" }}',
+        is_active: {{ object.is_active|yesno:"true,false" }},
+        employee: '{{ object.employee.pk|default:"" }}'
+    };
+    {% else %}
+    const originalValues = {};
+    {% endif %}
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // Initialize rating stars
+        initializeRatingStars();
+        
+        // Initialize cost calculations
+        initializeCostCalculations();
+        
+        // Initialize form validation
+        initializeFormValidation();
+    });
+
+    // Rating Stars Functionality
+    function initializeRatingStars() {
+        document.querySelectorAll('.rating-stars').forEach(function(ratingContainer) {
+            const stars = ratingContainer.querySelectorAll('i[data-star]');
+            const targetInput = document.getElementById(ratingContainer.dataset.target);
+            const currentRating = parseInt(ratingContainer.dataset.rating) || 0;
+
+            // Set initial rating display
+            updateStarsDisplay(stars, currentRating);
+
+            // Add click handlers
+            stars.forEach(function(star) {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.star);
+                    targetInput.value = rating;
+                    updateStarsDisplay(stars, rating);
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.star);
+                    updateStarsDisplay(stars, rating, true);
+                });
+            });
+
+            // Reset on mouse leave
+            ratingContainer.addEventListener('mouseleave', function() {
+                const currentValue = parseInt(targetInput.value) || 0;
+                updateStarsDisplay(stars, currentValue);
+            });
+
+            // Sync with input changes
+            targetInput.addEventListener('input', function() {
+                const rating = Math.min(5, Math.max(0, parseInt(this.value) || 0));
+                this.value = rating;
+                updateStarsDisplay(stars, rating);
+            });
+        });
+    }
+
+    function updateStarsDisplay(stars, rating, isHover = false) {
+        stars.forEach(function(star, index) {
+            if (index < rating) {
+                star.classList.add('active');
+                if (isHover) {
+                    star.style.color = '#ff9800';
+                } else {
+                    star.style.color = '#ffc107';
+                }
+            } else {
+                star.classList.remove('active');
+                star.style.color = '#ddd';
+            }
+        });
+    }
+
+    // Cost Calculations
+    function initializeCostCalculations() {
+        const loadingCountInput = document.getElementById('{{ form.loading_workers_count.id_for_label }}');
+        const loadingCostInput = document.getElementById('{{ form.loading_workers_cost.id_for_label }}');
+        const deliveringCountInput = document.getElementById('{{ form.delivering_workers_count.id_for_label }}');
+        const deliveringCostInput = document.getElementById('{{ form.delivering_workers_cost.id_for_label }}');
+
+        function updateCostCalculations() {
+            const loadingCount = parseInt(loadingCountInput.value) || 0;
+            const loadingCost = parseInt(loadingCostInput.value) || 0;
+            const deliveringCount = parseInt(deliveringCountInput.value) || 0;
+            const deliveringCost = parseInt(deliveringCostInput.value) || 0;
+
+            const totalLoadingCost = loadingCount * loadingCost;
+            const totalDeliveringCost = deliveringCount * deliveringCost;
+            const totalWorkersCost = totalLoadingCost + totalDeliveringCost;
+
+            document.getElementById('totalLoadingCost').textContent = totalLoadingCost.toLocaleString() + ' دينار';
+            document.getElementById('totalDeliveringCost').textContent = totalDeliveringCost.toLocaleString() + ' دينار';
+            document.getElementById('totalWorkersCost').textContent = totalWorkersCost.toLocaleString() + ' دينار';
+
+            // Add visual feedback for high costs
+            const totalCostElement = document.getElementById('totalWorkersCost');
+            if (totalWorkersCost > 100000) {
+                totalCostElement.classList.add('text-danger');
+                totalCostElement.classList.remove('text-primary');
+            } else {
+                totalCostElement.classList.add('text-primary');
+                totalCostElement.classList.remove('text-danger');
+            }
+        }
+
+        // Add event listeners
+        [loadingCountInput, loadingCostInput, deliveringCountInput, deliveringCostInput].forEach(function(input) {
+            input.addEventListener('input', updateCostCalculations);
+            input.addEventListener('change', updateCostCalculations);
+        });
+
+        // Initial calculation
+        updateCostCalculations();
+    }
+
+    // Form Validation
+    function initializeFormValidation() {
+        const form = document.getElementById('orderForm');
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            
+            // Clear previous validation styling
+            form.querySelectorAll('.is-invalid').forEach(function(field) {
+                field.classList.remove('is-invalid');
+            });
+
+            // Check required fields
+            requiredFields.forEach(function(field) {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                }
+            });
+
+            // Validate ratings
+            const clientRating = parseInt(document.getElementById('{{ form.client_rating.id_for_label }}').value);
+            const captainRating = parseInt(document.getElementById('{{ form.captain_rating.id_for_label }}').value);
+
+            if (clientRating < 0 || clientRating > 5) {
+                document.getElementById('{{ form.client_rating.id_for_label }}').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (captainRating < 0 || captainRating > 5) {
+                document.getElementById('{{ form.captain_rating.id_for_label }}').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to first invalid field
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+                
+                // Show error message
+                showNotification('يرجى التحقق من البيانات المدخلة وإصلاح الأخطاء', 'error');
+            }
+        });
+
+        // Real-time validation feedback
+        form.querySelectorAll('input, select, textarea').forEach(function(field) {
+            field.addEventListener('blur', function() {
+                if (this.hasAttribute('required') && !this.value.trim()) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            field.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    }
+
+    // Reset form function (for edit mode)
+    {% if object %}
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset select fields
+            if (originalValues.user) document.getElementById('{{ form.user.id_for_label }}').value = originalValues.user;
+            if (originalValues.company) document.getElementById('{{ form.company.id_for_label }}').value = originalValues.company;
+            if (originalValues.captain) document.getElementById('{{ form.captain.id_for_label }}').value = originalValues.captain;
+            if (originalValues.employee) document.getElementById('{{ form.employee.id_for_label }}').value = originalValues.employee;
+            if (originalValues.order_type) document.getElementById('{{ form.order_type.id_for_label }}').value = originalValues.order_type;
+
+            // Reset text inputs
+            document.getElementById('{{ form.collection_area.id_for_label }}').value = originalValues.collection_area;
+            document.getElementById('{{ form.collection_area_details.id_for_label }}').value = originalValues.collection_area_details;
+            document.getElementById('{{ form.rejection_reason.id_for_label }}').value = originalValues.rejection_reason;
+            document.getElementById('{{ form.distance.id_for_label }}').value = originalValues.distance;
+            document.getElementById('{{ form.captain_status.id_for_label }}').value = originalValues.captain_status;
+            document.getElementById('{{ form.client_status.id_for_label }}').value = originalValues.client_status;
+            document.getElementById('{{ form.note.id_for_label }}').value = originalValues.note;
+
+            // Reset number inputs
+            document.getElementById('{{ form.loading_workers_count.id_for_label }}').value = originalValues.loading_workers_count;
+            document.getElementById('{{ form.loading_workers_cost.id_for_label }}').value = originalValues.loading_workers_cost;
+            document.getElementById('{{ form.delivering_workers_count.id_for_label }}').value = originalValues.delivering_workers_count;
+            document.getElementById('{{ form.delivering_workers_cost.id_for_label }}').value = originalValues.delivering_workers_cost;
+            document.getElementById('{{ form.client_rating.id_for_label }}').value = originalValues.client_rating;
+            document.getElementById('{{ form.captain_rating.id_for_label }}').value = originalValues.captain_rating;
+
+            // Reset checkbox
+            document.getElementById('{{ form.is_active.id_for_label }}').checked = originalValues.is_active === 'true';
+
+            // Clear file inputs (can't restore original files)
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => input.value = '');
+
+            // Update rating stars display
+            document.querySelectorAll('.rating-stars').forEach(function(ratingContainer) {
+                const stars = ratingContainer.querySelectorAll('i[data-star]');
+                const targetInput = document.getElementById(ratingContainer.dataset.target);
+                const rating = parseInt(targetInput.value) || 0;
+                updateStarsDisplay(stars, rating);
+            });
+
+            // Recalculate costs
+            const event = new Event('input');
+            document.getElementById('{{ form.loading_workers_count.id_for_label }}').dispatchEvent(event);
+
+            showNotification('تم استعادة القيم الأصلية بنجاح', 'success');
+        }
+    }
+    {% endif %}
+
+    // Notification function
+    function showNotification(message, type = 'info') {
+        const alertClass = type === 'error' ? 'alert-danger' : 
+                          type === 'success' ? 'alert-success' : 
+                          'alert-info';
+        
+        const notification = document.createElement('div');
+        notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Additional helper functions
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('ar-IQ', {
+            style: 'currency',
+            currency: 'IQD'
+        }).format(amount);
+    }
+
+    // Initialize tooltips if Bootstrap is available
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

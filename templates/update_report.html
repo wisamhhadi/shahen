@@ -1,0 +1,555 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل التقرير: #{{ object.id }}
+            </h1>
+            <p class="text-muted mb-0">تعديل بيانات ومعلومات التقرير الاستبياني في النظام</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+
+            <a href="{% url 'list_report' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="reportForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Report Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            معلومات التقرير الأساسية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Report ID (Read-only) -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-hashtag text-success me-1"></i>
+                                    رقم التقرير
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-hashtag text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" value="#{{ object.id }}" readonly>
+                                </div>
+                                <div class="form-text">رقم التقرير في النظام (غير قابل للتعديل)</div>
+                            </div>
+
+                            <!-- Mandob Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-success me-1"></i>
+                                    {{ form.mandob.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </span>
+                                    {{ form.mandob }}
+                                </div>
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">المندوب المسؤول عن هذا التقرير</div>
+                            </div>
+
+                            <!-- Type Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-tags text-success me-1"></i>
+                                    {{ form.type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-tags text-muted"></i>
+                                    </span>
+                                    {{ form.type }}
+                                </div>
+                                {% for error in form.type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">نوع الاستبيان (دوري، أسبوعي، شهري، سنوي)</div>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-toggle-on text-success me-1"></i>
+                                    حالة التقرير
+                                </label>
+                                <div class="form-check form-switch mt-2">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل التقرير في النظام</div>
+                            </div>
+
+
+
+                            {% if form.instance.latitude %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-marker text-success me-1"></i>
+                                    موقع رفع التقرير
+                                </label>
+                                <div class="input-group">
+                                   <a target="_blank" href="https://www.google.com/maps/search/{{ form.instance.latitude }},{{ form.instance.longitude }}">انتقال للموقع</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date and Time Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-calendar me-2"></i>
+                            معلومات التاريخ والوقت
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            
+
+                            <!-- Created Date (Read-only) -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-plus-circle text-success me-1"></i>
+                                    تاريخ الإنشاء
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-plus-circle text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" value="{{ object.created|date:'Y/m/d H:i' }}" readonly>
+                                </div>
+                                <div class="form-text">تاريخ إنشاء التقرير في النظام</div>
+                            </div>
+
+                            <!-- Updated Date (Read-only) -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-edit text-warning me-1"></i>
+                                    آخر تحديث
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-edit text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" value="{{ object.updated|date:'Y/m/d H:i' }}" readonly>
+                                </div>
+                                <div class="form-text">تاريخ آخر تعديل على التقرير</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <!-- Additional Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            المرفقات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.file1.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file1.label }}
+                                </label>
+                                {{ form.file1 }}
+                                {% for error in form.file1.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.file2.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file2.label }}
+                                </label>
+                                {{ form.file2 }}
+                                {% for error in form.file2.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.file3.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file3.label }}
+                                </label>
+                                {{ form.file3 }}
+                                {% for error in form.file3.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.file4.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file4.label }}
+                                </label>
+                                {{ form.file4 }}
+                                {% for error in form.file4.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.file5.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file5.label }}
+                                </label>
+                                {{ form.file5 }}
+                                {% for error in form.file5.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+                <!-- Answers Management Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            إدارة الأجوبة والاستبيانات
+                        </h6>
+                        <div class="d-flex gap-2">
+
+
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if answers %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th>السؤال</th>
+                                        <th>الجواب النصي</th>
+                                        <th class="text-center">نعم/لا</th>
+                                        <th>الحالة</th>
+                                        <th>المرفق</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for answer in answers %}
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">{{ answer.id }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-question text-primary me-2"></i>
+                                                <div>
+                                                    <strong>{{ answer.question.title}}</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if answer.answer %}
+                                                <div class="text-truncate" style="max-width: 200px;" title="{{ answer.answer }}">
+                                                    {{ answer.answer }}
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">لا يوجد جواب نصي</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% if answer.answer2 %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    نعم
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-times me-1"></i>
+                                                    لا
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if answer.is_active %}
+                                                <span class="badge bg-success">فعال</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">غير فعال</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if answer.file1 %}
+                                                <a class="badge bg-success" href="{{answer.file1.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if answer.file2 %}
+                                                <a class="badge bg-success" href="{{answer.file2.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if answer.file3 %}
+                                                <a class="badge bg-success" href="{{answer.file3.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if answer.file4 %}
+                                                <a class="badge bg-success" href="{{answer.file4.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if answer.file5 %}
+                                                <a class="badge bg-success" href="{{answer.file5.url}}">تحميل</a>
+                                            {% endif %}
+                                        </td>
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                            <h6>لا توجد أجوبة</h6>
+                            <p class="text-muted">لم يتم إضافة أي أجوبة لهذا التقرير بعد</p>
+
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>تنبيه:</strong>
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Mandob Information Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            معلومات المندوب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-success text-white rounded-circle me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                {{ object.mandob.name|first }}
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ object.mandob.name }}</div>
+                                <small class="text-muted">المندوب المسؤول</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">رقم الهاتف</label>
+                            <div>
+                                <a href="tel:{{ object.mandob.phone }}" class="text-decoration-none">
+                                    <i class="fas fa-phone text-success me-2"></i>
+                                    {{ object.mandob.phone }}
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if object.mandob.location %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">الموقع</label>
+                            <div>
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                {{ object.mandob.location }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid">
+                            <a href="{% url 'update_mandob' object.mandob.pk %}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-eye me-1"></i>
+                                عرض تفاصيل المندوب
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Form Actions -->
+
+
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .avatar {
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #007bff;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        mandob: '{{ object.mandob.pk }}',
+        day: '{{ object.day|date:"Y-m-d" }}',
+        time: '{{ object.time|time:"H:i" }}',
+        type: '{{ object.type }}',
+        is_active: {{ object.is_active|yesno:"true,false" }}
+    };
+
+    // Reset form function
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset select and input fields
+            document.querySelector('[name="{{ form.mandob.name }}"]').value = originalValues.mandob;
+            document.querySelector('[name="{{ form.day.name }}"]').value = originalValues.day;
+            document.querySelector('[name="{{ form.time.name }}"]').value = originalValues.time;
+            document.querySelector('[name="{{ form.type.name }}"]').value = originalValues.type;
+            document.querySelector('[name="{{ form.is_active.name }}"]').checked = originalValues.is_active;
+        }
+    }
+
+    // Refresh answers section
+    function refreshAnswers() {
+        location.reload();
+    }
+
+    // Form validation
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
+        const mandob = document.querySelector('[name="{{ form.mandob.name }}"]').value;
+        const day = document.querySelector('[name="{{ form.day.name }}"]').value;
+        const time = document.querySelector('[name="{{ form.time.name }}"]').value;
+        const type = document.querySelector('[name="{{ form.type.name }}"]').value;
+
+        if (!mandob || !day || !time || !type) {
+            e.preventDefault();
+            alert('يرجى ملء جميع الحقول المطلوبة');
+            return false;
+        }
+
+        // Check if date is not in the future
+        const selectedDate = new Date(day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+            e.preventDefault();
+            alert('لا يمكن تعديل التقرير لتاريخ مستقبلي');
+            return false;
+        }
+    });
+
+    // Tooltips for action buttons
+    document.querySelectorAll('[title]').forEach(function(element) {
+        new bootstrap.Tooltip(element);
+    });
+
+    // Auto-refresh answers every 2 minutes
+    setInterval(function() {
+        // Optional: Auto-refresh only the answers section
+        // You can implement AJAX refresh here if needed
+    }, 120000);
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

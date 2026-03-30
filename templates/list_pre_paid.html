@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-tags text-success me-2"></i>
+                إدارة كودات الدفع المسبق
+            </h1>
+            <p class="text-muted mb-0">عرض وإدارة جميع كودات الدفع المسبق</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <!-- Add Button -->
+            <a href="{% url 'create_pre_paid' %}" class="btn btn-success btn-sm shadow-sm">
+                <i class="fas fa-plus me-1"></i>
+                إضافة كود
+            </a>
+
+            <!-- Export Excel Button -->
+            <a href="{% url 'pre_paid_excel' %}" class="btn btn-outline-success btn-sm shadow-sm">
+                <i class="fas fa-file-excel me-1"></i>
+                تصدير Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <!-- Search Box -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-bold">البحث السريع</label>
+                    <form class="input-group" method="get">
+                        <input type="text" class="form-control border-2" placeholder="ابحث بالكود أو القيمة..." name="search">
+                        <button class="btn btn-outline-secondary" type="submit" id="searchBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Filter Toggle -->
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="toggleFilter()" id="filterToggleBtn">
+                        <i class="fas fa-filter me-1"></i>
+                        فلترة متقدمة
+                    </button>
+                </div>
+
+                <!-- Results Info -->
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <span class="text-muted">
+                            <i class="fas fa-tags me-1"></i>
+                            إجمالي النتائج: <strong class="text-success">{{ objects|length }}</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filters (Hidden by default) -->
+            <div class="collapse mt-4" id="advancedFilters">
+                <hr>
+                <form method="get" class="row g-3">
+                    {% for field in filter.form %}
+                    <div class="col-md-4">
+                        <label for="{{ field.id_for_label }}" class="form-label text-muted fw-bold">
+                            {{ field.label }}
+                        </label>
+                        {% if field.field.widget.input_type == 'select' %}
+                            {{ field }}
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger alert-sm p-2 mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="col-12">
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>
+                                تطبيق الفلتر
+                            </button>
+                            <a href="{% url 'list_pre_paid' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                مسح الفلتر
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 text-gray-800">
+                <i class="fas fa-table me-2"></i>
+                قائمة كودات الدفع المسبق
+            </h6>
+
+            <!-- View Toggle Buttons -->
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-secondary active" onclick="toggleView('table')">
+                    <i class="fas fa-table"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="toggleView('cards')">
+                    <i class="fas fa-th-large"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- Table View -->
+            <div id="tableView" class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-success">
+                        <tr>
+                            <th class="text-center" style="width: 60px;">#</th>
+                            <th>
+                                <i class="fas fa-user-tag me-1"></i>
+                                نوع المستخدم
+                            </th>
+                            <th>
+                                <i class="fas fa-barcode me-1"></i>
+                                الكود
+                            </th>
+                            <th>
+                                <i class="fas fa-money-bill-wave me-1"></i>
+                                القيمة
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-toggle-on me-1"></i>
+                                الحالة
+                            </th>
+                            <th class="text-center" style="width: 150px;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in objects %}
+                        <tr>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark">{{ obj.id }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-white">
+                                    {{ obj.get_user_type_display }}
+                                </span>
+                            </td>
+                            <td class="fw-bold">{{ obj.code }}</td>
+                            <td>{{ obj.amount }} <small class="text-muted">د.ع</small></td>
+                            <td class="text-center">
+                                {% if obj.is_active %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>
+                                        فعال
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i>
+                                        غير فعال
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'update_pre_paid' obj.pk %}"
+                                       class="btn btn-outline-primary"
+                                       title="عرض/تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete_pre_paid' obj.pk %}"
+                                            class="btn btn-outline-danger"
+                                            title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-tags fa-3x mb-3"></i>
+                                    <h5>لا توجد كودات</h5>
+                                    <p>لم يتم العثور على أي كودات مطابقة لمعايير البحث.</p>
+                                    <a href="{% url 'create_pre_paid' %}" class="btn btn-success">
+                                        <i class="fas fa-plus me-1"></i>
+                                        إضافة كود جديد
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card View (Hidden by default) -->
+            <div id="cardView" class="d-none p-3">
+                <div class="row g-3">
+                    {% for obj in objects %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card border-left-success shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ obj.code }}</h6>
+                                        <small class="text-muted">{{ obj.get_user_type_display }}</small>
+                                    </div>
+                                    {% if obj.is_active %}
+                                        <span class="badge bg-success">فعال</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">غير فعال</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-money-bill-wave text-muted me-2"></i>
+                                        <span>{{ obj.amount }} د.ع</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-id-card text-muted me-2"></i>
+                                        <span>الكود: {{ obj.id }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'update_pre_paid' obj.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="fas fa-edit me-1"></i>
+                                        تعديل
+                                    </a>
+                                    <a href="{% url 'delete_pre_paid' obj.pk %}"
+                                            class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div class="text-muted">
+                            <i class="fas fa-tags fa-3x mb-3"></i>
+                            <h5>لا توجد كودات</h5>
+                            <p>لم يتم العثور على أي كودات مطابقة لمعايير البحث.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="card-footer bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    عرض {{ page_obj.start_index }} - {{ page_obj.end_index }} من {{ page_obj.paginator.count }} كود
+                </div>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{% url 'list_pre_paid' %}?page={{ page_obj.previous_page_number }}&{{ parameters }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                {{ page_obj.number }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{% url 'list_pre_paid' %}?page={{ page_obj.next_page_number }}&{{ parameters }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Toggle advanced filters
+    function toggleFilter() {
+        const filtersCollapse = new bootstrap.Collapse(document.getElementById('advancedFilters'));
+        const toggleBtn = document.getElementById('filterToggleBtn');
+        const icon = toggleBtn.querySelector('i');
+
+        if (document.getElementById('advancedFilters').classList.contains('show')) {
+            icon.className = 'fas fa-filter me-1';
+            toggleBtn.innerHTML = '<i class="fas fa-filter me-1"></i>فلترة متقدمة';
+        } else {
+            icon.className = 'fas fa-filter-circle-xmark me-1';
+            toggleBtn.innerHTML = '<i class="fas fa-times me-1"></i>إخفاء الفلتر';
+        }
+
+        filtersCollapse.toggle();
+    }
+
+    // Toggle between table and card view
+    function toggleView(viewType) {
+        const tableView = document.getElementById('tableView');
+        const cardView = document.getElementById('cardView');
+        const buttons = document.querySelectorAll('.btn-group .btn');
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        if (viewType === 'table') {
+            tableView.classList.remove('d-none');
+            cardView.classList.add('d-none');
+            buttons[0].classList.add('active');
+        } else {
+            tableView.classList.add('d-none');
+            cardView.classList.remove('d-none');
+            buttons[1].classList.add('active');
+        }
+
+        // Save preference in localStorage
+        localStorage.setItem('prePaidViewPreference', viewType);
+    }
+
+    // Load saved view preference
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedView = localStorage.getItem('prePaidViewPreference');
+        if (savedView && savedView === 'cards') {
+            toggleView('cards');
+        }
+    });
+</script>
+
+{{ filter.form.media }}
+{% endblock scripts %}

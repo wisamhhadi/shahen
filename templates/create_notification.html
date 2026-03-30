@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-bell text-success me-2"></i>
+                إضافة إشعار جديد
+            </h1>
+            <p class="text-muted mb-0">إرسال إشعار جديد للمستخدمين</p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_notification' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="notificationForm">
+        {% csrf_token %}
+        {{ form.media }}
+        
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Notification Content Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>
+                            محتوى الإشعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Title Field -->
+                            <div class="col-12">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-heading text-success me-1"></i>
+                                    {{ form.title.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-heading text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default:'' }}" placeholder="أدخل عنوان الإشعار">
+                                </div>
+                                {% for error in form.title.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">عنوان الإشعار الذي سيظهر للمستخدمين</div>
+                            </div>
+                            
+                            <!-- Text Field -->
+                            <div class="col-12">
+                                <label for="{{ form.text.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-align-left text-success me-1"></i>
+                                    {{ form.text.label }}
+                                </label>
+                                <textarea class="form-control border-2" name="{{ form.text.name }}" id="{{ form.text.id_for_label }}" rows="6" placeholder="أدخل نص الإشعار التفصيلي...">{{ form.text.value|default:'' }}</textarea>
+                                {% for error in form.text.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">النص التفصيلي للإشعار (اختياري)</div>
+                            </div>
+                        
+                        
+                        
+                        <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}" {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-toggle-on text-success me-1"></i>
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل في النظام</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Recipients Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            مستقبلو الإشعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- User Type Field -->
+                            <div class="col-12">
+                                <label for="{{ form.user_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-tag text-primary me-1"></i>
+                                    {{ form.user_type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-user-tag text-muted"></i>
+                                    </span>
+                                    <!-- INSERT_YOUR_CODE -->
+                                    <select class="form-select border-2" name="{{ form.user_type.name }}" id="{{ form.user_type.id_for_label }}">
+                                        <option value="">اختر نوع المستخدم</option>
+                                        <option value="client1" {% if form.user_type.value == "client1" %}selected{% endif %}>زبون عادي</option>
+                                        <option value="client2" {% if form.user_type.value == "client2" %}selected{% endif %}>زبون تاجر</option>
+                                        <option value="captain" {% if form.user_type.value == "captain" %}selected{% endif %}>سائق</option>
+                                        <option value="deliveryCompany" {% if form.user_type.value == "deliveryCompany" %}selected{% endif %}>شركة نقل</option>
+                                        <option value="mandob" {% if form.user_type.value == "mandob" %}selected{% endif %}>مندوب</option>
+                                        <option value="admin" {% if form.user_type.value == "admin" %}selected{% endif %}>لوحة تحكم</option>
+                                    </select>
+                                </div>
+                                {% for error in form.user_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">نوع المستخدم الذي سيتلقى الإشعار (زبون، ناقل، سائق، مندوب)</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <div class="alert alert-info border-0 bg-light">
+                            <h6 class="text-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                اختر المستقبل المحدد (اختياري)
+                            </h6>
+                            <p class="mb-0 small">
+                                يمكنك اختيار مستخدم محدد لإرسال الإشعار إليه، أو تركه فارغاً لإرسال الإشعار لجميع المستخدمين من النوع المحدد أعلاه.
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- User Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.user.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-primary me-1"></i>
+                                    {{ form.user.label }}
+                                </label>
+                                {{ form.user }}
+                                {% for error in form.user.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر زبون محدد (اختياري)</div>
+                            </div>
+                            
+                            <!-- Company Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-primary me-1"></i>
+                                    {{ form.company.label }}
+                                </label>
+                                {{ form.company }}
+                                {% for error in form.company.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر شركة نقل محددة (اختياري)</div>
+                            </div>
+
+                            <!-- Captain Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-cog text-primary me-1"></i>
+                                    {{ form.captain.label }}
+                                </label>
+                                {{ form.captain }}
+                                {% for error in form.captain.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر سائق محدد (اختياري)</div>
+                            </div>
+
+                            <!-- Mandob Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-check text-primary me-1"></i>
+                                    {{ form.mandob.label }}
+                                </label>
+                                {{ form.mandob }}
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر مندوب محدد (اختياري)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Notification Preview Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-eye me-2"></i>
+                            معاينة الإشعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="notification-preview border rounded p-3 bg-light">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="fas fa-bell text-primary fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 preview-title text-muted">عنوان الإشعار</h6>
+                                    <p class="mb-0 small preview-text text-muted">نص الإشعار سيظهر هنا...</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        الآن
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            هكذا سيظهر الإشعار للمستخدمين
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Guidelines -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            إرشادات الإشعارات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0 bg-light">
+                            <h6 class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                نصائح مهمة
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>اجعل العنوان واضحاً ومختصراً</li>
+                                <li>استخدم نصاً مفهوماً وودوداً</li>
+                                <li>تأكد من اختيار النوع الصحيح للمستخدم</li>
+                                <li>راجع المحتوى قبل الإرسال</li>
+                                <li>الإشعارات المرسلة لا يمكن إلغاؤها</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                إرسال الإشعار
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                إعادة تعيين
+                            </button>
+                            
+                            <a href="{% url 'list_notification' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .notification-preview {
+        min-height: 80px;
+    }
+    
+    .preview-title {
+        font-weight: 600;
+        color: #333 !important;
+    }
+    
+    .preview-text {
+        color: #666 !important;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Reset form function
+    function resetForm() {
+        if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ سيتم فقدان جميع البيانات المدخلة.')) {
+            document.getElementById('notificationForm').reset();
+            // Reset preview
+            document.querySelector('.preview-title').textContent = 'عنوان الإشعار';
+            document.querySelector('.preview-text').textContent = 'نص الإشعار سيظهر هنا...';
+        }
+    }
+
+    // Update preview when typing
+    document.addEventListener('DOMContentLoaded', function() {
+        const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+        const textInput = document.getElementById('{{ form.text.id_for_label }}');
+        const previewTitle = document.querySelector('.preview-title');
+        const previewText = document.querySelector('.preview-text');
+
+        titleInput.addEventListener('input', function() {
+            previewTitle.textContent = this.value || 'عنوان الإشعار';
+        });
+
+        textInput.addEventListener('input', function() {
+            previewText.textContent = this.value || 'نص الإشعار سيظهر هنا...';
+        });
+    });
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

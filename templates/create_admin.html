@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-user-plus text-success me-2"></i>
+                إضافة موظف جديد
+            </h1>
+            <p class="text-muted mb-0">إضافة موظف جديد إلى النظام</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_admin' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="employeeForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Personal Information Section -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            المعلومات الشخصية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Name Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-success me-1"></i>
+                                    {{ form.name.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% for error in form.name.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">أدخل الاسم الكامل للموظف</div>
+                            </div>
+
+                            <!-- Phone Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-phone text-success me-1"></i>
+                                    {{ form.phone.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-phone text-muted"></i>
+                                    </span>
+                                    {{ form.phone }}
+                                </div>
+                                {% for error in form.phone.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">رقم الهاتف يجب أن يكون فريد</div>
+                            </div>
+
+
+
+
+                            <div class="col-md-6">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-shield text-success me-1"></i>
+                                    {{ form.password1.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-phone text-muted"></i>
+                                    </span>
+                                    {{ form.password1 }}
+                                </div>
+                                {% for error in form.password1.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        
+                        
+                        
+                            <div class="col-md-6">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-shield text-success me-1"></i>
+                                    {{ form.password2.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-phone text-muted"></i>
+                                    </span>
+                                    {{ form.password2 }}
+                                </div>
+                                {% for error in form.password2.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        
+                        
+                                                <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="{{ form.is_staff.name }}" id="{{ form.is_staff.id_for_label }}" {% if form.is_staff.value %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_staff.id_for_label }}">
+                                        <i class="fas fa-toggle-on text-success me-1"></i>
+                                        {{ form.is_staff.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_staff.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                        </div>
+                        
+                        
+                        
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-briefcase me-2"></i>
+                            المعلومات الوظيفية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Job Title Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.job_title.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-id-badge text-info me-1"></i>
+                                    {{ form.job_title.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.job_title }}
+                                {% for error in form.job_title.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">المسمى الوظيفي الحالي للموظف</div>
+                            </div>
+
+                            <!-- Salary Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.salary.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-warning me-1"></i>
+                                    {{ form.salary.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    {{ form.salary}}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.salary.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">الراتب الشهري (اختياري)</div>
+                            </div>
+
+                            <!-- Manager Field -->
+                            <div class="col-12">
+                                <label for="{{ form.manager.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-tie text-primary me-1"></i>
+                                    {{ form.manager.label }}
+                                </label>
+                                {{ form.manager }}
+                                {% for error in form.manager.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">اختر المسؤول المباشر لهذا الموظف</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Settings Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>
+                            إعدادات النظام
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Permission Group Field -->
+                            <div class="col-md-8">
+                                <label for="{{ form.permission_group.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-shield-alt text-warning me-1"></i>
+                                    {{ form.permission_group.label }}
+                                </label>
+                                {{ form.permission_group }}
+                                {% for error in form.permission_group.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">مجموعة الصلاحيات التي سيحصل عليها الموظف</div>
+                            </div>
+
+                            <!-- Active Status Field -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-dark d-block">
+                                    <i class="fas fa-toggle-on text-success me-1"></i>
+                                    حالة الموظف
+                                </label>
+                                <div class="form-check form-switch form-check-lg mt-2">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
+                                        <span class="active-label">{{ form.is_active.label }}</span>
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل حساب الموظف</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Image Section -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-camera me-2"></i>
+                            الصورة الشخصية
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+
+                        <!-- File Input -->
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">
+                                {{ form.image.label }}
+                            </label>
+                            {{ form.image}}
+                            {% for error in form.image.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                اختر صورة واضحة للموظف (اختياري)
+                            </div>
+                        </div>
+
+                        <!-- Upload Guidelines -->
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-lightbulb text-info me-1"></i>
+                                <strong>نصائح للصورة:</strong><br>
+                                • استخدم صورة واضحة<br>
+                                • الحد الأقصى: 5MB<br>
+                                • الأنواع المدعومة: JPG, PNG
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                حفظ الموظف
+                            </button>
+
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                إعادة تعيين
+                            </button>
+
+                            <a href="{% url 'list_admin' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-warning border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-warning me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    // Reset form function
+    function resetForm() {
+        if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ سيتم فقدان جميع البيانات المدخلة.')) {
+            document.getElementById('employeeForm').reset();
+
+            // Reset image preview
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePlaceholder').style.display = 'inline-flex';
+        }
+    }
+
+
+    // Active status switch label update
+    const activeSwitch = document.querySelector('#{{ form.is_active.id_for_label }}');
+    const activeLabel = document.querySelector('.active-label');
+
+    if (activeSwitch && activeLabel) {
+        activeSwitch.addEventListener('change', function() {
+            activeLabel.textContent = this.checked ? 'نشط' : 'غير نشط';
+            activeLabel.className = this.checked ? 'text-success fw-bold' : 'text-danger fw-bold';
+        });
+
+        // Set initial state
+        activeLabel.textContent = activeSwitch.checked ? 'نشط' : 'غير نشط';
+        activeLabel.className = activeSwitch.checked ? 'text-success fw-bold' : 'text-danger fw-bold';
+    }
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

@@ -1,0 +1,454 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل الإشعار: {{ object.title }}
+            </h1>
+            <p class="text-muted mb-0">تعديل محتوى ومستقبلي الإشعار في النظام</p>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_notification' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="notificationForm">
+        {% csrf_token %}
+        {{ form.media }}
+        
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Notification Content Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>
+                            محتوى الإشعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Title Field -->
+                            <div class="col-12">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-heading text-success me-1"></i>
+                                    {{ form.title.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-heading text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default:object.title|default:'' }}" placeholder="أدخل عنوان الإشعار">
+                                </div>
+                                {% for error in form.title.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">عنوان الإشعار الذي سيظهر للمستخدمين</div>
+                            </div>
+                            
+                            <!-- Text Field -->
+                            <div class="col-12">
+                                <label for="{{ form.text.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-align-left text-success me-1"></i>
+                                    {{ form.text.label }}
+                                </label>
+                                <textarea class="form-control border-2" name="{{ form.text.name }}" id="{{ form.text.id_for_label }}" rows="6" placeholder="أدخل نص الإشعار التفصيلي...">{{ form.text.value|default:object.text|default:'' }}</textarea>
+                                {% for error in form.text.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">النص التفصيلي للإشعار (اختياري)</div>
+                            </div>
+
+
+                        <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}" {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-toggle-on text-success me-1"></i>
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل في النظام</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Recipients Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            مستقبلو الإشعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- User Type Field -->
+                            <div class="col-12">
+                                <label for="{{ form.user_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-tag text-success me-1"></i>
+                                    {{ form.user_type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-user-tag text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" name="{{ form.user_type.name }}" id="{{ form.user_type.id_for_label }}" value="{{ form.user_type.value|default:object.user_type|default:'' }}" placeholder="نوع المستخدم المستهدف">
+                                </div>
+                                {% for error in form.user_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">نوع المستخدم الذي سيتلقى الإشعار (زبون، ناقل، سائق، مندوب)</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <div class="alert alert-info border-0 bg-light">
+                            <h6 class="text-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                اختر المستقبل المحدد (اختياري)
+                            </h6>
+                            <p class="mb-0 small">
+                                يمكنك اختيار مستخدم محدد لإرسال الإشعار إليه، أو تركه فارغاً لإرسال الإشعار لجميع المستخدمين من النوع المحدد أعلاه.
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- User Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.user.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-success me-1"></i>
+                                    {{ form.user.label }}
+                                </label>
+                                {{ form.user }}
+                                {% for error in form.user.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر زبون محدد (اختياري)</div>
+                            </div>
+                            
+                            <!-- Company Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-success me-1"></i>
+                                    {{ form.company.label }}
+                                </label>
+                                {{ form.company }}
+                                {% for error in form.company.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر شركة نقل محددة (اختياري)</div>
+                            </div>
+
+                            <!-- Captain Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-cog text-success me-1"></i>
+                                    {{ form.captain.label }}
+                                </label>
+                                {{ form.captain }}
+                                {% for error in form.captain.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر سائق محدد (اختياري)</div>
+                            </div>
+
+                            <!-- Mandob Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-check text-success me-1"></i>
+                                    {{ form.mandob.label }}
+                                </label>
+                                {{ form.mandob }}
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر مندوب محدد (اختياري)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Update History Section (New for Update View) -->
+                {% if object.created or object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            سجل التعديلات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object.created %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <strong>تاريخ الإنشاء:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.created|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if object.updated %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <strong>آخر تعديل:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Notification Preview Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-eye me-2"></i>
+                            معاينة الإشعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="notification-preview border rounded p-3 bg-light">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <i class="fas fa-bell text-primary fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 preview-title text-muted">{{ object.title|default:"عنوان الإشعار" }}</h6>
+                                    <p class="mb-0 small preview-text text-muted">{{ object.text|default:"نص الإشعار سيظهر هنا..." }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {% if object.updated_at %}{{ object.updated_at|date:"d/m/Y H:i" }}{% else %}الآن{% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            هكذا سيظهر الإشعار للمستخدمين
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Recipients Display -->
+                {% if object.user or object.company or object.captain or object.mandob %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-users-check me-2"></i>
+                            المستقبلون الحاليون
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>نوع المستخدم:</strong> 
+                            <span class="badge bg-success">{{ object.user_type }}</span>
+                        </div>
+
+                        {% if object.user %}
+                        <div class="mb-2">
+                            <i class="fas fa-user text-success me-1"></i>
+                            <strong>الزبون:</strong> {{ object.user }}
+                        </div>
+                        {% endif %}
+
+                        {% if object.company %}
+                        <div class="mb-2">
+                            <i class="fas fa-building text-success me-1"></i>
+                            <strong>الشركة:</strong> {{ object.company }}
+                        </div>
+                        {% endif %}
+
+                        {% if object.captain %}
+                        <div class="mb-2">
+                            <i class="fas fa-user-cog text-success me-1"></i>
+                            <strong>السائق:</strong> {{ object.captain }}
+                        </div>
+                        {% endif %}
+
+                        {% if object.mandob %}
+                        <div class="mb-2">
+                            <i class="fas fa-user-check text-success me-1"></i>
+                            <strong>المندوب:</strong> {{ object.mandob }}
+                        </div>
+                        {% endif %}
+
+                        {% if not object.user and not object.company and not object.captain and not object.mandob %}
+                        <div class="alert alert-info border-0 mb-0">
+                            <small>
+                                <i class="fas fa-broadcast-tower me-1"></i>
+                                الإشعار موجه لجميع مستخدمي نوع "{{ object.user_type }}"
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Notification Guidelines -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            إرشادات التعديل
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0 bg-light">
+                            <h6 class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                نصائح مهمة
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>اجعل العنوان واضحاً ومختصراً</li>
+                                <li>استخدم نصاً مفهوماً وودوداً</li>
+                                <li>تأكد من اختيار النوع الصحيح للمستخدم</li>
+                                <li>راجع المحتوى قبل التحديث</li>
+                                <li>التعديل قد يؤثر على الإحصائيات</li>
+                                <li>تأكد من صحة المستقبلين المحددين</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                تحديث الإشعار
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                استعادة القيم الأصلية
+                            </button>
+                            
+                            <a href="{% url 'list_notification' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .notification-preview {
+        min-height: 80px;
+    }
+    
+    .preview-title {
+        font-weight: 600;
+        color: #333 !important;
+    }
+    
+    .preview-text {
+        color: #666 !important;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        title: '{{ object.title|escapejs }}',
+        text: '{{ object.text|escapejs }}',
+        user_type: '{{ object.user_type|escapejs }}',
+        user: '{{ object.user.pk|default:"" }}',
+        company: '{{ object.company.pk|default:"" }}',
+        captain: '{{ object.captain.pk|default:"" }}',
+        mandob: '{{ object.mandob.pk|default:"" }}'
+    };
+
+    // Reset form function - now resets to original values
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset text inputs
+            document.getElementById('{{ form.title.id_for_label }}').value = originalValues.title;
+            document.getElementById('{{ form.text.id_for_label }}').value = originalValues.text;
+            document.getElementById('{{ form.user_type.id_for_label }}').value = originalValues.user_type;
+
+            // Reset select fields
+            if (originalValues.user) document.getElementById('{{ form.user.id_for_label }}').value = originalValues.user;
+            if (originalValues.company) document.getElementById('{{ form.company.id_for_label }}').value = originalValues.company;
+            if (originalValues.captain) document.getElementById('{{ form.captain.id_for_label }}').value = originalValues.captain;
+            if (originalValues.mandob) document.getElementById('{{ form.mandob.id_for_label }}').value = originalValues.mandob;
+
+            // Reset preview
+            document.querySelector('.preview-title').textContent = originalValues.title || 'عنوان الإشعار';
+            document.querySelector('.preview-text').textContent = originalValues.text || 'نص الإشعار سيظهر هنا...';
+        }
+    }
+
+    // Update preview when typing
+    document.addEventListener('DOMContentLoaded', function() {
+        const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+        const textInput = document.getElementById('{{ form.text.id_for_label }}');
+        const previewTitle = document.querySelector('.preview-title');
+        const previewText = document.querySelector('.preview-text');
+
+        titleInput.addEventListener('input', function() {
+            previewTitle.textContent = this.value || originalValues.title || 'عنوان الإشعار';
+        });
+
+        textInput.addEventListener('input', function() {
+            previewText.textContent = this.value || originalValues.text || 'نص الإشعار سيظهر هنا...';
+        });
+
+        // Initialize preview with current values
+        previewTitle.textContent = titleInput.value || originalValues.title || 'عنوان الإشعار';
+        previewText.textContent = textInput.value || originalValues.text || 'نص الإشعار سيظهر هنا...';
+    });
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

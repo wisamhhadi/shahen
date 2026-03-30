@@ -1,0 +1,653 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل تقرير الفواتير: #{{ object.id }}
+            </h1>
+            <p class="text-muted mb-0">تعديل بيانات ومعلومات تقرير الفاتورة في النظام</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_order_report' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="orderReportForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Order Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            معلومات تقرير الفاتورة الأساسية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Order ID (Read-only) -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-hashtag text-success me-1"></i>
+                                    رقم الطلب
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-hashtag text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" value="#{{ object.id }}" readonly>
+                                </div>
+                                <div class="form-text">رقم التقرير في النظام (غير قابل للتعديل)</div>
+                            </div>
+
+                            <!-- Mandob Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-success me-1"></i>
+                                    {{ form.mandob.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </span>
+                                    {{ form.mandob }}
+                                </div>
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">المندوب المسؤول عن هذا التقرير</div>
+                            </div>
+
+                            <!-- Name Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-tag text-success me-1"></i>
+                                    {{ form.name.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-tag text-muted"></i>
+                                    </span>
+                                    {{ form.name }}
+                                </div>
+                                {% for error in form.name.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">اسم الزبون</div>
+                            </div>
+
+                            <!-- Location Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.location.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-marker-alt text-success me-1"></i>
+                                    {{ form.location.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-map-marker-alt text-muted"></i>
+                                    </span>
+                                    {{ form.location }}
+                                </div>
+                                {% for error in form.location.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">عنوان الزبون</div>
+                            </div>
+
+
+                            <!-- currency Status -->
+                            <div class="col-md-6">
+                                <label for="{{ form.currency.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file-excel text-success me-1"></i>
+                                    {{ form.currency.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-file-excel text-muted"></i>
+                                    </span>
+                                    {{ form.currency }}
+                                </div>
+                                {% for error in form.currency.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">عملة التقرير</div>
+                            </div>
+
+
+
+                            <div class="col-md-6">
+                                <label for="{{ form.type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-money text-success me-1"></i>
+                                    {{ form.type.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-money text-muted"></i>
+                                    </span>
+                                    {{ form.type }}
+                                </div>
+                                {% for error in form.type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">نوع الدفع</div>
+                            </div>
+
+
+
+
+                                                    <!-- Total Price Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.total_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-success me-1"></i>
+                                    {{ form.total_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    {{ form.total_price }}
+                                </div>
+                                {% for error in form.total_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">السعر الإجمالي للطلب</div>
+                            </div>
+
+
+
+                                                    <!-- Total Price Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.paid.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-success me-1"></i>
+                                    {{ form.paid.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    {{ form.paid }}
+                                </div>
+                                {% for error in form.paid.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">المدفوع</div>
+                            </div>
+
+
+
+                                                    <!-- Total Price Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.last.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-success me-1"></i>
+                                    {{ form.last.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    {{ form.last }}
+                                </div>
+                                {% for error in form.last.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">المتبقي</div>
+                            </div>
+
+                            {% if form.instance.latitude %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-marker text-success me-1"></i>
+                                    موقع رفع التقرير
+                                </label>
+                                <div class="input-group">
+                                   <a target="_blank" href="https://www.google.com/maps/search/{{ form.instance.latitude }},{{ form.instance.longitude }}">انتقال للموقع</a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            معلومات إضافية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Note Field -->
+                            <div class="col-md-12">
+                                <label for="{{ form.note.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-sticky-note text-info me-1"></i>
+                                    {{ form.note.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-sticky-note text-muted"></i>
+                                    </span>
+                                    {{ form.note }}
+                                </div>
+                                {% for error in form.note.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">ملاحظات إضافية حول التقرير</div>
+                            </div>
+
+                        <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-plus-circle text-success me-1"></i>
+                                    تاريخ الإنشاء
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-plus-circle text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" value="{{ object.created|date:'Y/m/d H:i' }}" readonly>
+                                </div>
+                                <div class="form-text">تاريخ إنشاء التقرير في النظام</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                           <!-- Additional Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            المرفقات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.file1.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file1.label }}
+                                </label>
+                                {{ form.file1 }}
+                                {% for error in form.file1.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.file2.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file2.label }}
+                                </label>
+                                {{ form.file2 }}
+                                {% for error in form.file2.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.file3.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file3.label }}
+                                </label>
+                                {{ form.file3 }}
+                                {% for error in form.file3.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.file4.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file4.label }}
+                                </label>
+                                {{ form.file4 }}
+                                {% for error in form.file4.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.file5.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file text-info me-1"></i>
+                                    {{ form.file5.label }}
+                                </label>
+                                {{ form.file5 }}
+                                {% for error in form.file5.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+                <!-- Items Management Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            إدارة الأصناف والمنتجات
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if items %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th>الاسم</th>
+                                        <th>الصنف</th>
+                                        <th>النوع</th>
+                                        <th class="text-center">العدد</th>
+                                        <th>السعر</th>
+                                        <th>المدفوع</th>
+                                        <th>السعر الكلي</th>
+                                        <th>المرفق</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">{{ item.id }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-box text-primary me-2"></i>
+                                                <div>
+                                                    <strong>{{ item.name }}</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ item.category }}</span>
+                                        </td>
+                                        <td>
+                                            {% if item.type == 'sell' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-shopping-cart me-1"></i>
+                                                    بيع
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-exchange-alt me-1"></i>
+                                                    {{ item.get_type_display }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">{{ item.count }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success fw-bold">{{ item.price|floatformat:0 }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-info fw-bold">{{ item.paid|floatformat:0 }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-primary fw-bold">{{ item.total_price|floatformat:0 }}</span>
+                                        </td>
+                                        <td>
+                                            {% if item.file1 %}
+                                                <a class="badge bg-success" href="{{item.file1.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if item.file2 %}
+                                                <a class="badge bg-success" href="{{item.file2.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if item.file3 %}
+                                                <a class="badge bg-success" href="{{item.file3.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if item.file4 %}
+                                                <a class="badge bg-success" href="{{item.file4.url}}">تحميل</a>
+                                            {% endif %}
+                                            {% if item.file5 %}
+                                                <a class="badge bg-success" href="{{item.file5.url}}">تحميل</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                            <h6>لا توجد أصناف</h6>
+                            <p class="text-muted">لم يتم إضافة أي أصناف لهذا الطلب بعد</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>تنبيه:</strong>
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Mandob Information Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            معلومات المندوب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-success text-white rounded-circle me-3" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                {{ object.mandob.name|first }}
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ object.mandob.name }}</div>
+                                <small class="text-muted">المندوب</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">رقم الهاتف</label>
+                            <div>
+                                <a href="tel:{{ object.mandob.phone }}" class="text-decoration-none">
+                                    <i class="fas fa-phone text-success me-2"></i>
+                                    {{ object.mandob.phone }}
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if object.mandob.location %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">الموقع</label>
+                            <div>
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                {{ object.mandob.location }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid">
+                            <a href="{% url 'update_mandob' object.mandob.pk %}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-eye me-1"></i>
+                                عرض تفاصيل المندوب
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .avatar {
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #007bff;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        mandob: '{{ object.mandob.pk }}',
+        name: '{{ object.name }}',
+        location: '{{ object.location }}',
+        total_price: '{{ object.total_price }}',
+        note: '{{ object.note }}',
+        is_active: {{ object.is_active|yesno:"true,false" }}
+    };
+
+    // Reset form function
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset select and input fields
+            document.querySelector('[name="{{ form.mandob.name }}"]').value = originalValues.mandob;
+            document.querySelector('[name="{{ form.name.name }}"]').value = originalValues.name;
+            document.querySelector('[name="{{ form.location.name }}"]').value = originalValues.location;
+            document.querySelector('[name="{{ form.total_price.name }}"]').value = originalValues.total_price;
+            document.querySelector('[name="{{ form.note.name }}"]').value = originalValues.note;
+            document.querySelector('[name="{{ form.is_active.name }}"]').checked = originalValues.is_active;
+        }
+    }
+
+    // Refresh items section
+    function refreshItems() {
+        location.reload();
+    }
+
+    // Form validation
+    document.getElementById('orderReportForm').addEventListener('submit', function(e) {
+        const mandob = document.querySelector('[name="{{ form.mandob.name }}"]').value;
+        const name = document.querySelector('[name="{{ form.name.name }}"]').value;
+        const location = document.querySelector('[name="{{ form.location.name }}"]').value;
+
+        if (!mandob || !name || !location) {
+            e.preventDefault();
+            alert('يرجى ملء جميع الحقول المطلوبة');
+            return false;
+        }
+    });
+
+    // Tooltips for action buttons
+    document.querySelectorAll('[title]').forEach(function(element) {
+        new bootstrap.Tooltip(element);
+    });
+
+    // Auto-refresh items every 2 minutes
+    setInterval(function() {
+        // Optional: Auto-refresh only the items section
+        // You can implement AJAX refresh here if needed
+    }, 120000);
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

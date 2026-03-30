@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-car text-success me-2"></i>
+                إدارة المركبات
+            </h1>
+            <p class="text-muted mb-0">عرض وإدارة جميع مركبات النظام</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'create_car' %}" class="btn btn-success btn-sm shadow-sm">
+                <i class="fas fa-plus me-1"></i>
+                إضافة مركبة
+            </a>
+
+            <a href="{% url 'car_excel' %}" class="btn btn-outline-success btn-sm shadow-sm">
+                <i class="fas fa-file-excel me-1"></i>
+                تصدير Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-bold">البحث السريع</label>
+                    <form class="input-group" method="get">
+                        <input type="text" name="search" class="form-control border-2" placeholder="ابحث برقم السيارة أو اسم السائق...">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-outline-success w-100" onclick="toggleFilter()" id="filterToggleBtn">
+                        <i class="fas fa-filter me-1"></i>
+                        فلترة متقدمة
+                    </button>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-end text-muted">
+                    <i class="fas fa-car me-1"></i>
+                    إجمالي النتائج: <strong class="text-success ms-1">{{ objects|length }}</strong>
+                </div>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div class="collapse mt-4" id="advancedFilters">
+                <hr>
+                <form method="get" class="row g-3">
+                    {% for field in filter.form %}
+                        <div class="col-md-4">
+                            <label for="{{ field.id_for_label }}" class="form-label text-muted fw-bold">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger p-2 mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="col-12">
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-search me-1"></i>
+                                تطبيق الفلتر
+                            </button>
+                            <a href="{% url 'list_car' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                مسح الفلتر
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 text-gray-800">
+                <i class="fas fa-table me-2"></i>
+                قائمة المركبات
+            </h6>
+
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-secondary active" onclick="toggleView('table')">
+                    <i class="fas fa-table"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="toggleView('cards')">
+                    <i class="fas fa-th-large"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- Table View -->
+            <div id="tableView" class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-success">
+                        <tr>
+                            <th>#</th>
+                            <th>رقم السيارة</th>
+                            <th>الدولة</th>
+                            <th>المحافظة</th>
+                            <th>فعال؟</th>
+                            <th class="text-center">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in objects %}
+                        <tr>
+                            <td>{{ obj.id }}</td>
+                            <td>{{ obj.car_number|default:"-" }}</td>
+                            <td>{{ obj.country|default:"-" }}</td>
+                            <td>{{ obj.province|default:"-" }}</td>
+                            <td>
+                                {% if obj.is_active %}
+                                    <span class="badge bg-success">نعم</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">لا</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'update_car' obj.pk %}" class="btn btn-outline-success" title="تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete_car' obj.pk %}" class="btn btn-outline-danger" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">لا توجد مركبات مطابقة</p>
+                                <a href="{% url 'create_car' %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-1"></i>
+                                    إضافة مركبة جديدة
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card View -->
+            <div id="cardView" class="d-none p-3">
+                <div class="row g-3">
+                    {% for obj in objects %}
+                    <div class="col-md-4">
+                        <div class="card border-left-success shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-2">
+                                    <i class="fas fa-car text-success me-2"></i>
+                                    {{ obj.car_number }}
+                                </h6>
+                                <p class="mb-1 text-muted">
+                                    الدولة: {{ obj.country|default:"-" }}
+                                </p>
+                                <p class="mb-1 text-muted">
+                                    المحافظة: {{ obj.province|default:"-" }}
+                                </p>
+                                <p class="mb-2">
+                                    الحالة:
+                                    {% if obj.captain and obj.captain.is_active %}
+                                        <span class="badge bg-success">فعالة</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">غير فعالة</span>
+                                    {% endif %}
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'update_car' obj.pk %}" class="btn btn-outline-success btn-sm w-100">
+                                        <i class="fas fa-edit me-1"></i> تعديل
+                                    </a>
+                                    <a href="{% url 'delete_car' obj.pk %}" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">لا توجد مركبات مطابقة</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="card-footer bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    عرض {{ page_obj.start_index }} - {{ page_obj.end_index }} من {{ page_obj.paginator.count }} مركبة
+                </div>
+
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ parameters }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-right"></i></span></li>
+                        {% endif %}
+
+                        <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ parameters }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleFilter() {
+        const filtersCollapse = new bootstrap.Collapse(document.getElementById('advancedFilters'));
+        const toggleBtn = document.getElementById('filterToggleBtn');
+        const icon = toggleBtn.querySelector('i');
+
+        if (document.getElementById('advancedFilters').classList.contains('show')) {
+            icon.className = 'fas fa-filter me-1';
+            toggleBtn.innerHTML = '<i class="fas fa-filter me-1"></i>فلترة متقدمة';
+        } else {
+            icon.className = 'fas fa-times me-1';
+            toggleBtn.innerHTML = '<i class="fas fa-times me-1"></i>إخفاء الفلتر';
+        }
+
+        filtersCollapse.toggle();
+    }
+
+    function toggleView(viewType) {
+        const tableView = document.getElementById('tableView');
+        const cardView = document.getElementById('cardView');
+        const buttons = document.querySelectorAll('.btn-group .btn');
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        if (viewType === 'table') {
+            tableView.classList.remove('d-none');
+            cardView.classList.add('d-none');
+            buttons[0].classList.add('active');
+        } else {
+            tableView.classList.add('d-none');
+            cardView.classList.remove('d-none');
+            buttons[1].classList.add('active');
+        }
+
+        localStorage.setItem('carViewPreference', viewType);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const savedView = localStorage.getItem('carViewPreference');
+        if (savedView && savedView === 'cards') {
+            toggleView('cards');
+        }
+    });
+</script>
+
+{{ filter.form.media }}
+{% endblock scripts %}

@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-user-tie text-success me-2"></i>
+                حضور المندوب
+            </h1>
+            <p class="text-muted mb-0">عرض حضور المندوب المعين</p>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="row mb-4">
+        <!-- Main Statistics Cards -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                إجمالي السجلات
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_records|floatformat:0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                إجمالي ساعات العمل
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_work_hours|floatformat:1 }} ساعة
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                متوسط ساعات العمل
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.avg_work_hours }} ساعة
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                عدد المندوبين
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_employees }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        حالة الحضور
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border-right">
+                                <div class="h4 font-weight-bold text-success">{{ stats.present_count }}</div>
+                                <div class="text-xs text-uppercase text-success">حاضر</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-right">
+                                <div class="h4 font-weight-bold text-warning">{{ stats.incomplete_attendance }}</div>
+                                <div class="text-xs text-uppercase text-warning">غير مكتمل</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div>
+                                <div class="h4 font-weight-bold text-danger">{{ stats.absent_count }}</div>
+                                <div class="text-xs text-uppercase text-danger">غائب</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    
+        <!-- Top Employees -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-trophy me-2"></i>
+                        أفضل المندوبين (ساعات العمل)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if stats.top_employees %}
+                        {% for employee in stats.top_employees %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="font-weight-bold">{{ employee.mandob__name|default:"غير محدد" }}</div>
+                                <div class="text-xs text-muted">{{ employee.attendance_count }} يوم حضور</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-weight-bold text-success">{{ employee.total_hours|floatformat:1 }}س</div>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}<hr class="my-2">{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <p>لا توجد بيانات</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="mt-4">
+                <form method="get" class="row g-3">
+                    {% for field in filter.form %}
+                        {% if field.name != 'mandob' %}
+                        <div class="col-md-4">
+                            <label for="{{ field.id_for_label }}" class="form-label text-muted fw-bold">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger alert-sm p-2 mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="col-12">
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>
+                                تطبيق الفلتر
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h6 class="mb-0 text-gray-800">
+                <i class="fas fa-table me-2"></i>
+                قائمة الحضور
+                {% if stats.total_records > 0 %}
+                    <span class="badge bg-primary ms-2">{{ stats.total_records }}</span>
+                {% endif %}
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-success">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>الاسم</th>
+                            <th>اليوم</th>
+                            <th>وقت البداء</th>
+                            <th>وقت الانتهاء</th>
+                            <th>وقت العمل</th>
+                            <th>وقت التأخير</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in objects %}
+                        <tr>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark">{{ obj.id }}</span>
+                            </td>
+                            <td><strong>{{ obj.mandob }}</strong></td>
+                            <td>{{ obj.day }}</td>
+                            <td>
+                                {% if obj.attend_time %}
+                                    <span class="badge bg-success">{{ obj.attend_time }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">لم يحضر</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if obj.leave_time %}
+                                    <span class="badge bg-info">{{ obj.leave_time }}</span>
+                                {% elif obj.attend_time %}
+                                    <span class="badge bg-warning">لا يزال يعمل</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if obj.work_hour %}
+                                    <span class="font-weight-bold text-success">{{ obj.work_hour }} ساعة</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if obj.late_hour %}
+                                    <span class="badge bg-danger">{{ obj.late_hour }} ساعة</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-user-tie fa-3x mb-3"></i>
+                                    <h5>لا توجد نتائج</h5>
+                                    <p>لم يتم العثور على أي حضور للمندوب.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        عرض {{ page_obj.start_index }} - {{ page_obj.end_index }} من {{ page_obj.paginator.count }} حضور
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{% url 'list_attendance' %}?page={{ page_obj.previous_page_number }}&{{ parameters }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{% url 'list_attendance' %}?page={{ page_obj.next_page_number }}&{{ parameters }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{{ filter.form.media }}
+
+
+{% endblock scripts %}

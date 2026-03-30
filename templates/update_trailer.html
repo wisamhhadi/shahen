@@ -1,0 +1,627 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل المقطورة: {{ object }}
+            </h1>
+            <p class="text-muted mb-0">تعديل المقطورة وإعدادات الأسعار والتكوين</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_trailer' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="trailerForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Basic Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            المعلومات الأساسية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Name Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-tag text-success me-1"></i>
+                                    {{ form.name.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-trailer text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:object.name|default:'' }}" placeholder="أدخل اسم المقطورة">
+                                </div>
+                                {% for error in form.name.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">اسم المقطورة أو النوع</div>
+                            </div>
+
+                            <!-- Car Category Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.car_category.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-car-side text-success me-1"></i>
+                                    {{ form.car_category.label }}
+                                </label>
+                                {{ form.car_category }}
+                                {% for error in form.car_category.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">فئة السيارة المتوافقة</div>
+                            </div>
+
+                            <!-- Goods Type Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.goods_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-boxes text-success me-1"></i>
+                                    {{ form.goods_type.label }}
+                                </label>
+                                {{ form.goods_type }}
+                                {% for error in form.goods_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">نوع الحمولة المناسبة</div>
+                            </div>
+                        
+                        
+                        
+                                         <!-- Car Size -->
+                            <div class="col-md-6">
+                                <label for="{{ form.car_size.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-expand-arrows-alt text-success me-1"></i>
+                                    {{ form.car_size.label }}
+                                </label>
+                                {{ form.car_size }}
+                                {% for error in form.car_size.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark d-block">
+                                    <i class="fas fa-toggle-on text-success me-1"></i>
+                                    حالة المقطورة
+                                </label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}" {% if form.is_active.value|default:object.is_active %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل المقطورة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing Configuration Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-dollar-sign me-2"></i>
+                            إعدادات الأسعار
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- KM Price (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.km_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-road text-success me-1"></i>
+                                    {{ form.km_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-road text-muted"></i>
+                                    </span>
+                                    {{ form.km_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.km_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Car Hour Price (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.car_hour_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-clock text-success me-1"></i>
+                                    {{ form.car_hour_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-clock text-muted"></i>
+                                    </span>
+                                    {{ form.car_hour_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.car_hour_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Worker Hour Price (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.worker_hour_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-hard-hat text-success me-1"></i>
+                                    {{ form.worker_hour_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-user-hard-hat text-muted"></i>
+                                    </span>
+                                    {{ form.worker_hour_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.worker_hour_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Inner Ride Start Price (Django Rendered) -->
+                            <div class="col-md-6">
+                                <label for="{{ form.inner_ride_start_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-pin text-success me-1"></i>
+                                    {{ form.inner_ride_start_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-map-pin text-muted"></i>
+                                    </span>
+                                    {{ form.inner_ride_start_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.inner_ride_start_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Outer Ride Start Price (Django Rendered) -->
+                            <div class="col-md-6">
+                                <label for="{{ form.outer_ride_start_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-signs text-success me-1"></i>
+                                    {{ form.outer_ride_start_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-map-signs text-muted"></i>
+                                    </span>
+                                    {{ form.outer_ride_start_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.outer_ride_start_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Percentage Settings Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-percentage me-2"></i>
+                            إعدادات النسب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Worker Percentage (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.worker_prec.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-hard-hat text-info me-1"></i>
+                                    {{ form.worker_prec.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.worker_prec }}
+                                    <span class="input-group-text border-2 text-muted">%</span>
+                                </div>
+                                {% for error in form.worker_prec.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Weight Percentage (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.weight_prec.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-weight text-info me-1"></i>
+                                    {{ form.weight_prec.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.weight_prec }}
+                                    <span class="input-group-text border-2 text-muted">%</span>
+                                </div>
+                                {% for error in form.weight_prec.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Company Percentage (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.company_prec.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-info me-1"></i>
+                                    {{ form.company_prec.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.company_prec }}
+                                    <span class="input-group-text border-2 text-muted">%</span>
+                                </div>
+                                {% for error in form.company_prec.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Worker Settings Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-users-cog me-2"></i>
+                            إعدادات العمال
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Can Order Workers -->
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="{{ form.can_order_workers.name }}" id="{{ form.can_order_workers.id_for_label }}" {% if form.can_order_workers.value|default:object.can_order_workers %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.can_order_workers.id_for_label }}">
+                                        <i class="fas fa-user-plus text-warning me-1"></i>
+                                        {{ form.can_order_workers.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.can_order_workers.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">السماح بطلب عمال إضافيين لهذه المقطورة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rewards & Penalties Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-award me-2"></i>
+                            المكافآت والغرامات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Captain Prize (Django Rendered) -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain_prize.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-trophy text-success me-1"></i>
+                                    {{ form.captain_prize.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-trophy text-muted"></i>
+                                    </span>
+                                    {{ form.captain_prize }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.captain_prize.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Mandob Prize (Django Rendered) -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob_prize.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-medal text-success me-1"></i>
+                                    {{ form.mandob_prize.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-medal text-muted"></i>
+                                    </span>
+                                    {{ form.mandob_prize }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.mandob_prize.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Late Loading Settings -->
+                            <div class="col-md-6">
+                                <label for="{{ form.late_loading_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                    {{ form.late_loading_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-exclamation-triangle text-muted"></i>
+                                    </span>
+                                    {{ form.late_loading_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.late_loading_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.late_loading_days.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-calendar-times text-danger me-1"></i>
+                                    {{ form.late_loading_days.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-calendar-times text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.late_loading_days.name }}" id="{{ form.late_loading_days.id_for_label }}" value="{{ form.late_loading_days.value|default:object.late_loading_days|default:0 }}" min="0">
+                                    <span class="input-group-text border-2 text-muted">يوم</span>
+                                </div>
+                                {% for error in form.late_loading_days.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Late Delivering Settings -->
+                            <div class="col-md-6">
+                                <label for="{{ form.late_delivering_price.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-times-circle text-danger me-1"></i>
+                                    {{ form.late_delivering_price.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-times-circle text-muted"></i>
+                                    </span>
+                                    {{ form.late_delivering_price }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.late_delivering_price.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.late_delivering_days.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-calendar-minus text-danger me-1"></i>
+                                    {{ form.late_delivering_days.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-calendar-minus text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-2" name="{{ form.late_delivering_days.name }}" id="{{ form.late_delivering_days.id_for_label }}" value="{{ form.late_delivering_days.value|default:object.late_delivering_days|default:0 }}" min="0">
+                                    <span class="input-group-text border-2 text-muted">يوم</span>
+                                </div>
+                                {% for error in form.late_delivering_days.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update History Section -->
+                {% if object.created or object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            سجل التعديلات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object.created %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <strong>تاريخ الإنشاء:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.created|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if object.updated %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <strong>آخر تعديل:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Current Trailer Images Display -->
+                {% if object.image1 or object.image2 or object.image3 %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-images me-2"></i>
+                            الصور الحالية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            {% if object.image1 %}
+                            <div class="col-12">
+                                <label class="form-label small">الصورة الأولى:</label>
+                                <img src="{{ object.image1.url }}" class="img-fluid rounded border" style="max-height: 120px;">
+                            </div>
+                            {% endif %}
+                            {% if object.image2 %}
+                            <div class="col-12">
+                                <label class="form-label small">الصورة الثانية:</label>
+                                <img src="{{ object.image2.url }}" class="img-fluid rounded border" style="max-height: 120px;">
+                            </div>
+                            {% endif %}
+                            {% if object.image3 %}
+                            <div class="col-12">
+                                <label class="form-label small">الصورة الثالثة:</label>
+                                <img src="{{ object.image3.url }}" class="img-fluid rounded border" style="max-height: 120px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Trailer Images Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-images me-2"></i>
+                            تحديث صور المقطورة
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ form.image1.id_for_label }}" class="form-label fw-bold">{{ form.image1.label }}</label>
+                            {{ form.image1 }}
+                            {% for error in form.image1.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.image2.id_for_label }}" class="form-label fw-bold">{{ form.image2.label }}</label>
+                            {{ form.image2 }}
+                            {% for error in form.image2.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.image3.id_for_label }}" class="form-label fw-bold">{{ form.image3.label }}</label>
+                            {{ form.image3 }}
+                            {% for error in form.image3.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    
+                    
+                        <div class="mb-3">
+                            <label for="{{ form.map_icon.id_for_label }}" class="form-label fw-bold">{{ form.map_icon.label }}</label>
+                            {{ form.map_icon }}
+                            {% for error in form.map_icon.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    
+                    
+                    
+                    <div class="mb-3">
+                            <label for="{{ form.order_icon.id_for_label }}" class="form-label fw-bold">{{ form.order_icon.label }}</label>
+                            {{ form.order_icon }}
+                            {% for error in form.order_icon.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    
+                    
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                ترك الحقل فارغاً سيحتفظ بالصورة الحالية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Guidelines -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            إرشادات التعديل
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0 bg-light">
+                            <h6 class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                نصائح مهمة
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>تأكد من توافق فئة السيارة مع نوع الحمولة</li>
+                                <li>راجع الأسعار مع السوق الحالي</li>
+                                <li>تعديل النسب قد يؤثر على العمليات الجارية</li>
+                                <li>الغرامات تشجع الالتزام بالمواعيد</li>
+                                <li>المكافآت تحفز الأداء الجيد</li>
+                                <li>تأكد من حفظ نسخة احتياطية قبل التعديل</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                تحديث المقطورة
+                            </button>
+
+
+                            <a href="{% url 'list_trailer' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+
+{{ form.media }}
+{% endblock scripts %}

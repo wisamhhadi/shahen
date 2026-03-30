@@ -1,0 +1,823 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-ticket-alt text-success me-2"></i>
+                إدارة أكواد الرصيد
+            </h1>
+            <p class="text-muted mb-0">إضافة كود واحد أو إنشاء أكواد متعددة</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_pre_paid' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-center">
+                <div class="btn-group" role="group" aria-label="Creation Mode">
+                    <input type="radio" class="btn-check" name="creationMode" id="singleMode" autocomplete="off" checked>
+                    <label class="btn btn-outline-success" for="singleMode">
+                        <i class="fas fa-plus me-1"></i>
+                        إنشاء كود واحد
+                    </label>
+
+                    <input type="radio" class="btn-check" name="creationMode" id="bulkMode" autocomplete="off">
+                    <label class="btn btn-outline-success" for="bulkMode">
+                        <i class="fas fa-layer-group me-1"></i>
+                        الإنشاء المجمع
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Code Creation Form -->
+    <div id="singleCodeSection">
+        <form method="post" action="" enctype="multipart/form-data" id="prepaidCodeForm">
+            {% csrf_token %}
+            {{ form.media }}
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-lg-8">
+                    <!-- Code Details Section -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-code me-2"></i>
+                                تفاصيل الكود
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <!-- Code Field -->
+                                <div class="col-md-8">
+                                    <label for="{{ form.code.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-barcode text-success me-1"></i>
+                                        {{ form.code.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-2">
+                                            <i class="fas fa-hashtag text-muted"></i>
+                                        </span>
+                                        <input type="text" class="form-control form-control-lg border-2" name="{{ form.code.name }}" id="{{ form.code.id_for_label }}" value="{{ form.code.value|default:'' }}" placeholder="أدخل كود الرصيد">
+                                        <button type="button" class="btn btn-outline-success" onclick="generateCode()">
+                                            <i class="fas fa-magic"></i>
+                                            توليد
+                                        </button>
+                                    </div>
+                                    {% for error in form.code.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                    <div class="form-text">كود الرصيد الذي سيستخدمه المستخدم</div>
+                                </div>
+
+                                <!-- Amount Field -->
+                                <div class="col-md-4">
+                                    <label for="{{ form.amount.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-dollar-sign text-warning me-1"></i>
+                                        {{ form.amount.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-lg border-2" name="{{ form.amount.name }}" id="{{ form.amount.id_for_label }}" value="{{ form.amount.value|default:0 }}" min="0" step="500">
+                                        <span class="input-group-text border-2 text-muted">دينار</span>
+                                    </div>
+                                    {% for error in form.amount.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                    <div class="form-text">قيمة الرصيد بالدينار</div>
+                                </div>
+
+                                <!-- User Type Field -->
+                                <div class="col-12">
+                                    <label for="{{ form.user_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-user-tag text-success me-1"></i>
+                                        {{ form.user_type.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.user_type }}
+                                    {% for error in form.user_type.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                    <div class="form-text">نوع المستخدم الذي يمكنه استخدام هذا الكود</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="{{ form.is_active.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-circle text-success me-1"></i>
+                                        {{ form.is_active.label }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.is_active }}
+                                    {% for error in form.is_active.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Assignment Section -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-user-plus me-2"></i>
+                                تخصيص الكود (اختياري)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info border-0 bg-light mb-3">
+                                <h6 class="text-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    تعليمات التخصيص
+                                </h6>
+                                <p class="mb-0 small">
+                                    يمكنك تخصيص الكود لمستخدم محدد، أو تركه فارغاً ليكون متاحاً لجميع المستخدمين من النوع المحدد أعلاه.
+                                </p>
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- User Field -->
+                                <div class="col-md-6">
+                                    <label for="{{ form.user.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-user text-success me-1"></i>
+                                        {{ form.user.label }}
+                                    </label>
+                                    {{ form.user }}
+                                    {% for error in form.user.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                    {% endfor %}
+                                    <div class="form-text">تخصيص الكود لزبون محدد</div>
+                                </div>
+
+                                <!-- Company Field -->
+                                <div class="col-md-6">
+                                    <label for="{{ form.company.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-building text-success me-1"></i>
+                                        {{ form.company.label }}
+                                    </label>
+                                    {{ form.company }}
+                                    {% for error in form.company.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                    {% endfor %}
+                                    <div class="form-text">تخصيص الكود لشركة نقل محددة</div>
+                                </div>
+
+                                <!-- Captain Field -->
+                                <div class="col-md-6">
+                                    <label for="{{ form.captain.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-user-cog text-success me-1"></i>
+                                        {{ form.captain.label }}
+                                    </label>
+                                    {{ form.captain }}
+                                    {% for error in form.captain.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                    {% endfor %}
+                                    <div class="form-text">تخصيص الكود لسائق محدد</div>
+                                </div>
+
+                                <!-- Mandob Field -->
+                                <div class="col-md-6">
+                                    <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-user-check text-success me-1"></i>
+                                        {{ form.mandob.label }}
+                                    </label>
+                                    {{ form.mandob }}
+                                    {% for error in form.mandob.errors %}
+                                        <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                    {% endfor %}
+                                    <div class="form-text">تخصيص الكود لمندوب محدد</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-lg-4">
+                    <!-- Code Preview Section -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-eye me-2"></i>
+                                معاينة الكود
+                            </h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="code-preview border rounded p-4 bg-light">
+                                <div class="mb-3">
+                                    <i class="fas fa-ticket-alt text-success fa-3x"></i>
+                                </div>
+                                <div class="mb-2">
+                                    <h5 class="text-success mb-1 preview-code">كود الرصيد</h5>
+                                    <p class="text-muted mb-0 small">كود قابل للاستخدام</p>
+                                </div>
+                                <hr>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted">القيمة</small>
+                                        <div class="h6 text-success preview-amount">0 دينار</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">النوع</small>
+                                        <div class="h6 text-success preview-user-type">غير محدد</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                هكذا سيظهر الكود في النظام
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Guidelines -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                إرشادات الأكواد
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning border-0 bg-light">
+                                <h6 class="text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    نصائح مهمة
+                                </h6>
+                                <ul class="mb-0 small">
+                                    <li>استخدم أكواد فريدة وصعبة التخمين</li>
+                                    <li>تأكد من صحة قيمة الرصيد</li>
+                                    <li>اختر نوع المستخدم المناسب</li>
+                                    <li>الكود يُستخدم مرة واحدة فقط</li>
+                                    <li>يمكن توليد كود تلقائي آمن</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    حفظ الكود
+                                </button>
+
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>
+                                    إعادة تعيين
+                                </button>
+
+                                <a href="{% url 'list_pre_paid' %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-times me-2"></i>
+                                    إلغاء
+                                </a>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="alert alert-info border-0 bg-light">
+                                <small>
+                                    <i class="fas fa-info-circle text-info me-1"></i>
+                                    الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bulk Code Creation Section -->
+    <div id="bulkCodeSection" style="display: none;">
+        <form id="bulkCodeForm">
+            <div class="row">
+                <!-- Bulk Settings -->
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-layer-group me-2"></i>
+                                إعدادات الإنشاء المجمع
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <!-- Number of Codes -->
+                                <div class="col-md-4">
+                                    <label for="bulkCount" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-hashtag text-success me-1"></i>
+                                        عدد الأكواد
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-lg border-2" id="bulkCount" min="1" max="1000" value="10">
+                                        <span class="input-group-text border-2 text-muted">كود</span>
+                                    </div>
+                                    <div class="form-text">عدد الأكواد المراد إنشاؤها (1-1000)</div>
+                                </div>
+
+                                <!-- Amount -->
+                                <div class="col-md-4">
+                                    <label for="bulkAmount" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-dollar-sign text-warning me-1"></i>
+                                        قيمة الرصيد
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-lg border-2" id="bulkAmount" min="0" step="500" value="1000">
+                                        <span class="input-group-text border-2 text-muted">دينار</span>
+                                    </div>
+                                    <div class="form-text">قيمة كل كود بالدينار</div>
+                                </div>
+
+                                <!-- User Type -->
+                                <div class="col-md-4">
+                                    <label for="bulkUserType" class="form-label fw-bold text-dark">
+                                        <i class="fas fa-user-tag text-success me-1"></i>
+                                        نوع المستخدم
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg border-2" id="bulkUserType">
+                                        <option value="">اختر نوع المستخدم</option>
+                                        <option value="client1">زبون</option>
+                                        <option value="client2">تاجر</option>
+                                        <option value="deliveryCompany">شركة نقل</option>
+                                        <option value="captain">سائق</option>
+                                        <option value="mandob">مندوب</option>
+                                    </select>
+                                    <div class="form-text">نوع المستخدم الذي يمكنه استخدام الأكواد</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Summary -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-calculator me-2"></i>
+                                ملخص العملية
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="border rounded p-2 bg-light">
+                                        <h4 class="text-success mb-1" id="summaryCount">10</h4>
+                                        <small class="text-muted">عدد الأكواد</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-2 bg-light">
+                                        <h4 class="text-success mb-1" id="summaryAmount">1,000</h4>
+                                        <small class="text-muted">قيمة الكود الواحد</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-2 bg-light">
+                                        <h4 class="text-warning mb-1" id="summaryTotal">10,000</h4>
+                                        <small class="text-muted">إجمالي القيمة</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-2 bg-light">
+                                        <h4 class="text-success mb-1" id="summaryUserType">غير محدد</h4>
+                                        <small class="text-muted">نوع المستخدم</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="col-lg-4">
+                    <!-- Bulk Actions Card -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-cogs me-2"></i>
+                                عمليات الإنشاء
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success btn-lg" onclick="generateBulkCodes()" id="generateBtn">
+                                    <i class="fas fa-magic me-2"></i>
+                                    إنشاء الأكواد
+                                </button>
+
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetBulkForm()">
+                                    <i class="fas fa-undo me-2"></i>
+                                    إعادة تعيين
+                                </button>
+
+                                <a href="{% url 'list_pre_paid' %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-times me-2"></i>
+                                    إلغاء
+                                </a>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="mt-3" id="progressContainer" style="display: none;">
+                                <label class="form-label">تقدم العملية:</label>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted mt-1 d-block" id="progressText">0 من 0</small>
+                            </div>
+
+                            <!-- Status Messages -->
+                            <div class="mt-3" id="statusContainer" style="display: none;">
+                                <div class="alert alert-info mb-0" id="statusMessage">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    جاري الإنشاء...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Guidelines -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                إرشادات الإنشاء المجمع
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning border-0 bg-light">
+                                <h6 class="text-warning">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    نصائح مهمة
+                                </h6>
+                                <ul class="mb-0 small">
+                                    <li>حدد عدد الأكواد بعناية</li>
+                                    <li>تأكد من قيمة الرصيد الصحيحة</li>
+                                    <li>اختر نوع المستخدم المناسب</li>
+                                    <li>الأكواد ستُحفظ تلقائياً في النظام</li>
+                                    <li>العملية قد تستغرق وقتاً للأعداد الكبيرة</li>
+                                    <li>سيتم توجيهك لقائمة الأكواد عند الانتهاء</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .code-preview {
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .preview-code {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .btn-check:checked + .btn-outline-success {
+        background-color: var(--bs-success);
+        border-color: var(--bs-success);
+        color: white;
+    }
+
+    .progress {
+        height: 8px;
+    }
+
+    /* Loading state for button */
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .btn-loading .spinner-border {
+        width: 1rem;
+        height: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Global variables
+    let currentMode = 'single';
+
+    // Mode switching
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle mode switching
+        document.querySelectorAll('input[name="creationMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                currentMode = this.value;
+                if (this.id === 'singleMode') {
+                    document.getElementById('singleCodeSection').style.display = 'block';
+                    document.getElementById('bulkCodeSection').style.display = 'none';
+                } else {
+                    document.getElementById('singleCodeSection').style.display = 'none';
+                    document.getElementById('bulkCodeSection').style.display = 'block';
+                }
+            });
+        });
+
+        // Initialize single code form events
+        initializeSingleCodeForm();
+
+        // Initialize bulk code form events
+        initializeBulkCodeForm();
+    });
+
+    // Initialize single code form
+    function initializeSingleCodeForm() {
+        const codeInput = document.getElementById('{{ form.code.id_for_label }}');
+        const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+        const userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+
+        if (codeInput) codeInput.addEventListener('input', updatePreview);
+        if (amountInput) amountInput.addEventListener('input', updatePreview);
+        if (userTypeSelect) userTypeSelect.addEventListener('change', updatePreview);
+
+        // Initial update
+        updatePreview();
+    }
+
+    // Initialize bulk code form
+    function initializeBulkCodeForm() {
+        const bulkCount = document.getElementById('bulkCount');
+        const bulkAmount = document.getElementById('bulkAmount');
+        const bulkUserType = document.getElementById('bulkUserType');
+
+        bulkCount.addEventListener('input', updateBulkSummary);
+        bulkAmount.addEventListener('input', updateBulkSummary);
+        bulkUserType.addEventListener('change', updateBulkSummary);
+
+        // Initial update
+        updateBulkSummary();
+    }
+
+    // Update bulk summary
+    function updateBulkSummary() {
+        const count = parseInt(document.getElementById('bulkCount').value) || 0;
+        const amount = parseInt(document.getElementById('bulkAmount').value) || 0;
+        const userType = document.getElementById('bulkUserType').value;
+
+        const userTypeNames = {
+            'client1': 'زبون',
+            'client2': 'زبون',
+            'deliveryCompany': 'شركة نقل',
+            'captain': 'سائق',
+            'mandob': 'مندوب'
+        };
+
+        document.getElementById('summaryCount').textContent = count.toLocaleString('ar-IQ');
+        document.getElementById('summaryAmount').textContent = amount.toLocaleString('ar-IQ');
+        document.getElementById('summaryTotal').textContent = (count * amount).toLocaleString('ar-IQ');
+        document.getElementById('summaryUserType').textContent = userTypeNames[userType] || 'غير محدد';
+    }
+
+    // Generate bulk codes
+    async function generateBulkCodes() {
+        const count = parseInt(document.getElementById('bulkCount').value);
+        const amount = parseInt(document.getElementById('bulkAmount').value);
+        const userType = document.getElementById('bulkUserType').value;
+
+        // Validation
+        if (!count || count < 1 || count > 1000) {
+            alert('يرجى إدخال عدد صحيح من الأكواد (1-1000)');
+            return;
+        }
+
+        if (!amount || amount < 0) {
+            alert('يرجى إدخال قيمة صحيحة للرصيد');
+            return;
+        }
+
+        if (!userType) {
+            alert('يرجى اختيار نوع المستخدم');
+            return;
+        }
+
+        // Confirm action
+        if (!confirm(`هل أنت متأكد من إنشاء ${count} كود بقيمة ${amount.toLocaleString('ar-IQ')} دينار لكل كود؟\n\nإجمالي القيمة: ${(count * amount).toLocaleString('ar-IQ')} دينار`)) {
+            return;
+        }
+
+        // Show progress and disable button
+        showProgress(true);
+        showStatus('جاري إنشاء الأكواد...', 'info');
+        setButtonLoading(true);
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        try {
+            for (let i = 0; i < count; i++) {
+                const code = generateUniqueCode();
+                
+                try {
+                    await createCode(code, amount, userType);
+                    successCount++;
+                    showStatus(`تم إنشاء ${successCount} من ${count} كود`, 'info');
+                } catch (error) {
+                    console.error('Error creating code:', error);
+                    errorCount++;
+                }
+
+                // Update progress
+                const progress = ((i + 1) / count) * 100;
+                updateProgress(progress, i + 1, count);
+
+                // Small delay to prevent overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            // Show final result
+            if (errorCount === 0) {
+                showStatus(`تم إنشاء جميع الأكواد بنجاح! (${successCount} كود)`, 'success');
+                setTimeout(() => {
+                    window.location.href = '{% url "list_pre_paid" %}';
+                }, 2000);
+            } else {
+                showStatus(`تم إنشاء ${successCount} كود بنجاح، فشل في إنشاء ${errorCount} كود`, 'warning');
+                setTimeout(() => {
+                    window.location.href = '{% url "list_pre_paid" %}';
+                }, 3000);
+            }
+
+        } catch (error) {
+            console.error('Bulk creation error:', error);
+            showStatus('حدث خطأ أثناء إنشاء الأكواد', 'danger');
+            setButtonLoading(false);
+        }
+    }
+
+    // Create single code via API
+    async function createCode(code, amount, userType) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        const response = await fetch('/api/v1/core/PrePaid', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                {#'X-CSRFToken': csrfToken#}
+            },
+            body: JSON.stringify({
+                code: code,
+                amount: amount,
+                user_type: userType,
+                is_active: true
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    // Generate unique 16-digit code
+    function generateUniqueCode() {
+        const chars = '0123456789';
+        let code = '';
+        
+        for (let i = 0; i < 16; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        return code;
+    }
+
+    // Show/hide progress
+    function showProgress(show) {
+        document.getElementById('progressContainer').style.display = show ? 'block' : 'none';
+        if (!show) {
+            updateProgress(0, 0, 0);
+        }
+    }
+
+    // Update progress
+    function updateProgress(percentage, current, total) {
+        document.getElementById('progressBar').style.width = percentage + '%';
+        document.getElementById('progressText').textContent = `${current} من ${total}`;
+    }
+
+    // Show status message
+    function showStatus(message, type) {
+        const container = document.getElementById('statusContainer');
+        const messageEl = document.getElementById('statusMessage');
+        
+        messageEl.className = `alert alert-${type} mb-0`;
+        messageEl.innerHTML = `<i class="fas fa-info-circle me-1"></i>${message}`;
+        container.style.display = 'block';
+    }
+
+    // Set button loading state
+    function setButtonLoading(loading) {
+        const btn = document.getElementById('generateBtn');
+        if (loading) {
+            btn.disabled = true;
+            btn.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                جاري الإنشاء...
+            `;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = `
+                <i class="fas fa-magic me-2"></i>
+                إنشاء الأكواد
+            `;
+        }
+    }
+
+    // Reset bulk form
+    function resetBulkForm() {
+        if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟')) {
+            document.getElementById('bulkCodeForm').reset();
+            showProgress(false);
+            document.getElementById('statusContainer').style.display = 'none';
+            setButtonLoading(false);
+            updateBulkSummary();
+        }
+    }
+
+    // Single code functions (existing)
+    function generateCode() {
+        const chars = '0123456789';
+        let code = '';
+        for (let i = 0; i < 16; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('{{ form.code.id_for_label }}').value = code;
+        updatePreview();
+    }
+
+    function resetForm() {
+        if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ سيتم فقدان جميع البيانات المدخلة.')) {
+            document.getElementById('prepaidCodeForm').reset();
+            // Reset preview
+            document.querySelector('.preview-code').textContent = 'كود الرصيد';
+            document.querySelector('.preview-amount').textContent = '0 دينار';
+            document.querySelector('.preview-user-type').textContent = 'غير محدد';
+        }
+    }
+
+    function updatePreview() {
+        const codeInput = document.getElementById('{{ form.code.id_for_label }}');
+        const amountInput = document.getElementById('{{ form.amount.id_for_label }}');
+        const userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+
+        if (!codeInput || !amountInput || !userTypeSelect) return;
+
+        const previewCode = document.querySelector('.preview-code');
+        const previewAmount = document.querySelector('.preview-amount');
+        const previewUserType = document.querySelector('.preview-user-type');
+
+        // Update code
+        previewCode.textContent = codeInput.value || 'كود الرصيد';
+
+        // Update amount
+        const amount = amountInput.value || '0';
+        previewAmount.textContent = parseFloat(amount).toLocaleString('ar-IQ') + ' دينار';
+
+        // Update user type
+        const userTypeText = userTypeSelect.options[userTypeSelect.selectedIndex].text;
+        previewUserType.textContent = userTypeText;
+    }
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

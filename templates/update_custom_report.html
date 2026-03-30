@@ -1,0 +1,781 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل التقرير: {{ custom_report.title }}
+            </h1>
+            <p class="text-muted mb-0">تعديل بيانات التقرير المخصص وأسئلته</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_custom_reports' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form id="reportForm" method="post" action="{% url 'update_custom_report' custom_report.pk %}">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Left Column - Report Details -->
+            <div class="col-lg-8">
+                <!-- Report Information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            معلومات التقرير الأساسية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Report Title -->
+                            <div class="col-12">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-heading text-success me-1"></i>
+                                    {{ form.title.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% for error in form.title.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">عنوان وصفي للتقرير سيظهر للمستخدمين</div>
+                            </div>
+
+                            <!-- Target Type -->
+                            <div class="col-md-6">
+                                <label for="{{ form.target_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-users text-success me-1"></i>
+                                    {{ form.target_type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.target_type }}
+                                {% for error in form.target_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">حدد من سيجيب على هذا التقرير</div>
+                            </div>
+
+                            <!-- Mandob Selection -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-info me-1"></i>
+                                    {{ form.mandob.label }}
+                                </label>
+                                {{ form.mandob }}
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اترك فارغاً لجميع المندوبين</div>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-toggle-on text-success me-1"></i>
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">سيكون التقرير متاحاً للمستخدمين</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            أسئلة التقرير
+                            <span id="questionCount" class="badge bg-light text-dark ms-2">0</span>
+                        </h6>
+                        <button type="button" class="btn btn-sm btn-outline-light" id="addQuestionBtn">
+                            <i class="fas fa-plus me-1"></i>
+                            إضافة سؤال
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- Questions Container -->
+                        <div id="questionsContainer">
+                            <div class="text-center py-5 text-muted" id="noQuestionsMessage">
+                                <i class="fas fa-question-circle fa-3x mb-3"></i>
+                                <h5>لا توجد أسئلة بعد</h5>
+                                <p>انقر على "إضافة سؤال" لبدء إنشاء الأسئلة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- answers section -->
+                            <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-comment me-2"></i>
+                            اجوبة المندوبين
+                        </h6>
+
+                    </div>
+                    <div class="card-body">
+                        
+                        
+                        <!-- asnwers Container -->
+                        {% if answers %}
+
+                        <!-- Answers List -->
+                        <div class="row">
+    {% regroup answers by mandob as mandob_answers %}
+    {% for mandob_group in mandob_answers %}
+    <div class="col-12 mb-3">
+        <div class="card border-start border-primary border-3 shadow-sm">
+            <!-- Mandob Header -->
+            <div class="card-header bg-light py-2">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 14px;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark">{{ mandob_group.grouper.name }}</h6>
+                            <small class="text-muted">{{ mandob_group.list|length }} إجابة</small>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ mandob_group.list.0.created|date:"d/m/Y" }}
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Answers Content -->
+            <div class="card-body py-2">
+                {% for answer in mandob_group.list %}
+                <div class="mb-2 {% if not forloop.last %}border-bottom pb-2{% endif %}">
+                    <!-- Question & Answer Row -->
+                    <div class="row align-items-start">
+                        <div class="col-md-5">
+                            <small class="text-success fw-bold d-block mb-1">
+                                <i class="fas fa-question-circle me-1"></i>
+                                السؤال:
+                            </small>
+                            <div class="text-dark small">{{ answer.question }}</div>
+                        </div>
+                        <div class="col-md-5">
+                            <small class="text-primary fw-bold d-block mb-1">
+                                <i class="fas fa-comment-dots me-1"></i>
+                                الإجابة:
+                            </small>
+                            <div class="text-dark small">
+                                {% if answer.answer_type == 'boolean' %}
+                                    {% if answer.answer == 'true' or answer.answer == '1' or answer.answer == 'نعم' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>نعم
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times me-1"></i>لا
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ answer.answer|truncatewords:15 }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <div class="d-flex flex-column gap-1">
+                                {% if answer.note %}
+                                <span class="badge bg-warning text-dark" title="يحتوي على ملاحظات">
+                                    <i class="fas fa-sticky-note"></i>
+                                </span>
+                                {% endif %}
+                                {% if answer.file1 or answer.file2 or answer.file3 or answer.file4 or answer.file5 %}
+                                <span class="badge bg-info" title="يحتوي على مرفقات">
+                                    <i class="fas fa-paperclip"></i>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notes (if available) -->
+                    {% if answer.note %}
+                    <div class="mt-2">
+                        <small class="text-warning fw-bold">
+                            <i class="fas fa-sticky-note me-1"></i>
+                            ملاحظات:
+                        </small>
+                        <div class="text-muted small mt-1">{{ answer.note|truncatewords:20 }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Attachments (if available) -->
+                    {% if answer.file1 or answer.file2 or answer.file3 or answer.file4 or answer.file5 %}
+                    <div class="mt-2">
+                        <small class="text-info fw-bold">
+                            <i class="fas fa-paperclip me-1"></i>
+                            المرفقات:
+                        </small>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            {% if answer.file1 %}
+                            <a href="{{ answer.file1.url }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2" download>
+                                <i class="fas fa-file" style="font-size: 10px;"></i>
+                            </a>
+                            {% endif %}
+                            {% if answer.file2 %}
+                            <a href="{{ answer.file2.url }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2" download>
+                                <i class="fas fa-file" style="font-size: 10px;"></i>
+                            </a>
+                            {% endif %}
+                            {% if answer.file3 %}
+                            <a href="{{ answer.file3.url }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2" download>
+                                <i class="fas fa-file" style="font-size: 10px;"></i>
+                            </a>
+                            {% endif %}
+                            {% if answer.file4 %}
+                            <a href="{{ answer.file4.url }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2" download>
+                                <i class="fas fa-file" style="font-size: 10px;"></i>
+                            </a>
+                            {% endif %}
+                            {% if answer.file5 %}
+                            <a href="{{ answer.file5.url }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2" download>
+                                <i class="fas fa-file" style="font-size: 10px;"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+                        
+                        {% else %}
+                            <div id="questionsContainer">
+                                <div class="text-center py-5 text-muted" id="noQuestionsMessage">
+                                    <i class="fas fa-comment fa-3x mb-3"></i>
+                                    <h5>لا توجد اجوبة بعد</h5>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Right Column - Actions -->
+            <div class="col-lg-4">
+                <!-- Actions Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>
+                            الإجراءات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg" id="saveReportBtn">
+                                <i class="fas fa-save me-2"></i>
+                                تحديث التقرير
+                            </button>
+                            
+                            <a href="{% url 'list_custom_reports' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                            
+                            <hr class="my-2">
+                            
+                            <a href="{% url 'delete_custom_report' custom_report.pk %}" class="btn btn-outline-danger btn-sm" 
+                               onclick="return confirm('هل أنت متأكد من حذف هذا التقرير؟')">
+                                <i class="fas fa-trash me-2"></i>
+                                حذف التقرير
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-info border-0 bg-light mb-0">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                <strong>تذكير:</strong> يجب إضافة سؤال واحد على الأقل لحفظ التقرير
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Question Template (Hidden) -->
+<div id="questionTemplate" style="display: none;">
+    <div class="question-item card mb-3 border-2">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">
+                <i class="fas fa-question text-success me-2"></i>
+                سؤال #<span class="question-number">1</span>
+            </h6>
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary move-up" title="تحريك للأعلى">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary move-down" title="تحريك للأسفل">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger remove-question" title="حذف السؤال">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Question Title -->
+                <div class="col-12">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-edit text-success me-1"></i>
+                        نص السؤال
+                        <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control question-title" name="questions[0][title]" rows="2" 
+                              placeholder="أدخل نص السؤال..." required></textarea>
+                </div>
+
+                <!-- Answer Type -->
+                <div class="col-12">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-list text-success me-1"></i>
+                        نوع الإجابة
+                    </label>
+                    <select class="form-control answer-type" name="questions[0][answer_type]">
+                        <option value="text">نص</option>
+                        <option value="choice">اختيار من متعدد</option>
+                        <option value="boolean">نعم/لا</option>
+                    </select>
+                </div>
+
+                <!-- Multiple Choice Options (Hidden by default) -->
+                <div class="col-12 choice-options" style="display: none;">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-list-ul text-purple me-1"></i>
+                        خيارات الاختيار
+                    </label>
+                    <div class="choice-list">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control choice-input" placeholder="خيار 1">
+                            <button type="button" class="btn btn-outline-danger remove-choice">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-success add-choice">
+                        <i class="fas fa-plus me-1"></i>
+                        إضافة خيار
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .question-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid #007bff !important;
+    }
+    
+    .question-item:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .question-number {
+        background: #007bff;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+    }
+    
+    .choice-options {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px dashed #dee2e6;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .text-purple {
+        color: #6f42c1 !important;
+    }
+    
+    .border-2 {
+        border-width: 2px !important;
+    }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let questionCounter = 0;
+    
+    // Elements
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const noQuestionsMessage = document.getElementById('noQuestionsMessage');
+    const questionCount = document.getElementById('questionCount');
+    const saveReportBtn = document.getElementById('saveReportBtn');
+    const reportForm = document.getElementById('reportForm');
+    
+    // Form inputs
+    const titleField = document.getElementById('{{ form.title.id_for_label }}');
+    const targetTypeField = document.getElementById('{{ form.target_type.id_for_label }}');
+    
+    // Load existing questions
+    const existingQuestions = JSON.parse('{{ existing_questions|escapejs }}');
+    
+    // Load existing questions on page load
+    if (existingQuestions && existingQuestions.length > 0) {
+        existingQuestions.forEach(function(questionData) {
+            addQuestion(questionData);
+        });
+    }
+    
+    // Add Question
+    addQuestionBtn.addEventListener('click', function() {
+        addQuestion();
+    });
+    
+    // Add question function
+    function addQuestion(existingData = null) {
+        questionCounter++;
+        const template = document.getElementById('questionTemplate').innerHTML;
+        const questionElement = document.createElement('div');
+        questionElement.innerHTML = template;
+        
+        // Update question number and names
+        const questionDiv = questionElement.querySelector('.question-item');
+        questionDiv.setAttribute('data-question-id', questionCounter);
+        
+        // Update input names and IDs
+        const inputs = questionDiv.querySelectorAll('[name*="questions[0]"]');
+        inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            input.setAttribute('name', name.replace('[0]', `[${questionCounter}]`));
+        });
+        
+        // Update question number display
+        questionDiv.querySelector('.question-number').textContent = questionCounter;
+        
+        // Pre-fill existing data if provided
+        if (existingData) {
+            questionDiv.querySelector('.question-title').value = existingData.title;
+            questionDiv.querySelector('.answer-type').value = existingData.answer_type;
+            
+            // Handle multiple choice options
+            if (existingData.answer_type === 'choice' && existingData.choices) {
+                const choiceOptions = questionDiv.querySelector('.choice-options');
+                const choiceList = questionDiv.querySelector('.choice-list');
+                
+                choiceOptions.style.display = 'block';
+                choiceList.innerHTML = ''; // Clear existing choices
+                
+                existingData.choices.forEach(function(choiceText, index) {
+                    const choiceDiv = document.createElement('div');
+                    choiceDiv.className = 'input-group mb-2';
+                    choiceDiv.innerHTML = `
+                        <input type="text" class="form-control choice-input" value="${choiceText}" placeholder="خيار ${index + 1}">
+                        <button type="button" class="btn btn-outline-danger remove-choice">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    choiceDiv.querySelector('.remove-choice').addEventListener('click', function() {
+                        choiceDiv.remove();
+                    });
+                    
+                    choiceList.appendChild(choiceDiv);
+                });
+            }
+        }
+        
+        // Add event listeners
+        addQuestionEventListeners(questionDiv);
+        
+        // Append to container
+        questionsContainer.appendChild(questionDiv);
+        
+        // Hide no questions message
+        noQuestionsMessage.style.display = 'none';
+        
+        // Update counters and validation
+        updateQuestionCount();
+        updateFormValidation();
+    }
+    
+    // Add event listeners to question
+    function addQuestionEventListeners(questionDiv) {
+        // Remove question
+        questionDiv.querySelector('.remove-question').addEventListener('click', function() {
+            if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+                questionDiv.remove();
+                updateQuestionNumbers();
+                updateQuestionCount();
+                updateFormValidation();
+                
+                if (questionsContainer.children.length === 0) {
+                    noQuestionsMessage.style.display = 'block';
+                }
+            }
+        });
+        
+        // Move up
+        questionDiv.querySelector('.move-up').addEventListener('click', function() {
+            const prev = questionDiv.previousElementSibling;
+            if (prev && prev.classList.contains('question-item')) {
+                questionsContainer.insertBefore(questionDiv, prev);
+                updateQuestionNumbers();
+            }
+        });
+        
+        // Move down
+        questionDiv.querySelector('.move-down').addEventListener('click', function() {
+            const next = questionDiv.nextElementSibling;
+            if (next && next.classList.contains('question-item')) {
+                questionsContainer.insertBefore(next, questionDiv);
+                updateQuestionNumbers();
+            }
+        });
+        
+        // Answer type change
+        questionDiv.querySelector('.answer-type').addEventListener('change', function() {
+            const choiceOptions = questionDiv.querySelector('.choice-options');
+            if (this.value === 'choice') {
+                choiceOptions.style.display = 'block';
+            } else {
+                choiceOptions.style.display = 'none';
+            }
+        });
+        
+        // Add choice option
+        questionDiv.querySelector('.add-choice').addEventListener('click', function() {
+            addChoiceOption(questionDiv.querySelector('.choice-list'));
+        });
+        
+        // Remove choice options
+        const removeChoiceBtns = questionDiv.querySelectorAll('.remove-choice');
+        removeChoiceBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.input-group').remove();
+            });
+        });
+        
+        // Question title change
+        questionDiv.querySelector('.question-title').addEventListener('input', function() {
+            updateFormValidation();
+        });
+    }
+    
+    // Add choice option
+    function addChoiceOption(choiceList) {
+        const choiceDiv = document.createElement('div');
+        choiceDiv.className = 'input-group mb-2';
+        choiceDiv.innerHTML = `
+            <input type="text" class="form-control choice-input" placeholder="خيار جديد">
+            <button type="button" class="btn btn-outline-danger remove-choice">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        choiceDiv.querySelector('.remove-choice').addEventListener('click', function() {
+            choiceDiv.remove();
+        });
+        
+        choiceList.appendChild(choiceDiv);
+    }
+    
+    // Update question numbers and input names
+    function updateQuestionNumbers() {
+        const questions = questionsContainer.querySelectorAll('.question-item');
+        questions.forEach((question, index) => {
+            const questionNum = index + 1;
+            question.querySelector('.question-number').textContent = questionNum;
+            question.setAttribute('data-question-id', questionNum);
+            
+            // Update input names
+            const inputs = question.querySelectorAll('[name*="questions["]');
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                const newName = name.replace(/questions\[\d+\]/, `questions[${questionNum}]`);
+                input.setAttribute('name', newName);
+            });
+        });
+    }
+    
+    // Update question count
+    function updateQuestionCount() {
+        const count = questionsContainer.querySelectorAll('.question-item').length;
+        questionCount.textContent = count;
+    }
+    
+    // Update form validation
+    function updateFormValidation() {
+        const hasTitle = titleField.value.trim() !== '';
+        const hasTarget = targetTypeField.value !== '';
+        const hasQuestions = questionsContainer.querySelectorAll('.question-item').length > 0;
+        
+        const isValid = hasTitle && hasTarget && hasQuestions;
+        
+        saveReportBtn.disabled = !isValid;
+    }
+    
+    // Form input changes
+    [titleField, targetTypeField].forEach(input => {
+        input.addEventListener('change', function() {
+            updateFormValidation();
+        });
+        input.addEventListener('input', function() {
+            updateFormValidation();
+        });
+    });
+    
+    // Form submission with choice handling
+    reportForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Always prevent default first
+        
+        // Remove any existing hidden choice inputs to prevent duplicates
+        const existingHiddenInputs = reportForm.querySelectorAll('input[name*="choice_"]');
+        existingHiddenInputs.forEach(input => input.remove());
+        
+        // Validate questions
+        const questions = questionsContainer.querySelectorAll('.question-item');
+        let valid = true;
+        
+        questions.forEach((question, index) => {
+            const title = question.querySelector('.question-title').value.trim();
+            if (!title) {
+                valid = false;
+                question.querySelector('.question-title').classList.add('is-invalid');
+            } else {
+                question.querySelector('.question-title').classList.remove('is-invalid');
+            }
+            
+            // Handle choices for multiple choice questions
+            const answerType = question.querySelector('.answer-type').value;
+            if (answerType === 'choice') {
+                const choiceInputs = question.querySelectorAll('.choice-input');
+                let hasValidChoice = false;
+                
+                choiceInputs.forEach((choiceInput, choiceIndex) => {
+                    const choiceText = choiceInput.value.trim();
+                    if (choiceText) {
+                        hasValidChoice = true;
+                        // Create hidden input for each choice
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = `choice_${index + 1}_${choiceIndex}`;
+                        hiddenInput.value = choiceText;
+                        reportForm.appendChild(hiddenInput);
+                    }
+                });
+                
+                // Validate that choice questions have at least one choice
+                if (!hasValidChoice) {
+                    valid = false;
+                    alert(`السؤال "${title}" من نوع "اختيار من متعدد" يجب أن يحتوي على خيار واحد على الأقل`);
+                }
+            }
+        });
+        
+        if (!valid) {
+            alert('يرجى ملء جميع أسئلة التقرير بشكل صحيح');
+            return;
+        }
+        
+        // Show loading
+        saveReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري التحديث...';
+        saveReportBtn.disabled = true;
+        
+        // Submit the form
+        reportForm.submit();
+    });
+    
+    // Initialize
+    updateFormValidation();
+});
+</script>
+
+<!-- Initialize Select2 for mandob field if you're using it -->
+<script>
+$(document).ready(function() {
+    $('#{{ form.mandob.id_for_label }}').select2({
+        ajax: {
+            url: '/mandob_autocomplete',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term,
+                    page: params.page
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+            cache: true
+        },
+        placeholder: 'اختر مندوب...',
+        allowClear: true,
+        minimumInputLength: 1
+    });
+});
+</script>
+{% endblock scripts %}

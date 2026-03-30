@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-map-marker text-success me-2"></i>
+                إدارة المقطورات
+            </h1>
+            <p class="text-muted mb-0">عرض وإدارة كافة المقطورات</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'create_trailer' %}" class="btn btn-success btn-sm shadow-sm">
+                <i class="fas fa-plus me-1"></i>
+                إضافة مقطورة
+            </a>
+            <a href="{% url 'trailer_excel' %}" class="btn btn-outline-success btn-sm shadow-sm">
+                <i class="fas fa-file-excel me-1"></i>
+                تصدير Excel
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label text-muted fw-bold">البحث السريع</label>
+                    <form class="input-group" method="get">
+                        <input type="text" class="form-control border-2" placeholder="ابحث بالاسم ..." name="search">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="toggleFilter()" id="filterToggleBtn">
+                        <i class="fas fa-filter me-1"></i>
+                        فلترة متقدمة
+                    </button>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="text-muted">
+                        <i class="fas fa-users me-1"></i>
+                        عدد النتائج: <strong class="text-success">{{ objects|length }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <div class="collapse mt-4" id="advancedFilters">
+                <hr>
+                <form method="get" class="row g-3">
+                    {% for field in filter.form %}
+                    <div class="col-md-4">
+                        <label for="{{ field.id_for_label }}" class="form-label text-muted fw-bold">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger alert-sm p-2 mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="col-12">
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>
+                                تطبيق الفلتر
+                            </button>
+                            <a href="{% url 'list_mandob' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                مسح الفلتر
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h6 class="mb-0 text-gray-800">
+                <i class="fas fa-table me-2"></i>
+                قائمة المقطورات
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-success">
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>الاسم</th>
+                            <th>نوع الحمولة</th>
+                            <th>فئة السيارة</th>
+                            <th>فعال</th>
+                            <th class="text-center">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in objects %}
+                        <tr>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark">{{ obj.id }}</span>
+                            </td>
+                            <td><strong>{{ obj.name }}</strong></td>
+                            <td>
+                                {{ obj.goods_type }}
+                            </td>
+                            <td>
+                                {{ obj.car_category }}
+                            </td>
+                            <td>
+                                {% if obj.is_active %}
+                                    <span class="badge bg-success">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">غير فعال</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'update_trailer' obj.pk %}" class="btn btn-outline-primary" title="تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete_trailer' obj.pk %}" class="btn btn-outline-danger" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-user-tie fa-3x mb-3"></i>
+                                    <h5>لا توجد نتائج</h5>
+                                    <p>لم يتم العثور على أي مقطورة حسب البحث أو الفلتر.</p>
+                                    <a href="{% url 'create_trailer' %}" class="btn btn-success">
+                                        <i class="fas fa-plus me-1"></i>
+                                        إضافة مقطورة جديدة
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        عرض {{ page_obj.start_index }} - {{ page_obj.end_index }} من {{ page_obj.paginator.count }} مقطورة
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="{% url 'list_trailer' %}?page={{ page_obj.previous_page_number }}&{{ parameters }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{% url 'list_trailer' %}?page={{ page_obj.next_page_number }}&{{ parameters }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleFilter() {
+        const collapse = new bootstrap.Collapse(document.getElementById('advancedFilters'));
+        const btn = document.getElementById('filterToggleBtn');
+        const icon = btn.querySelector('i');
+        if (document.getElementById('advancedFilters').classList.contains('show')) {
+            icon.className = 'fas fa-filter me-1';
+            btn.innerHTML = '<i class="fas fa-filter me-1"></i> فلترة متقدمة';
+        } else {
+            icon.className = 'fas fa-times me-1';
+            btn.innerHTML = '<i class="fas fa-times me-1"></i> إخفاء الفلتر';
+        }
+        collapse.toggle();
+    }
+</script>
+{{ filter.form.media }}
+{% endblock scripts %}

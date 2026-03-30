@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-trash text-danger me-2"></i>
+                حذف التقرير
+            </h1>
+            <p class="text-muted mb-0">تأكيد حذف التقرير المخصص</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_custom_reports' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        تأكيد الحذف
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                        <h4 class="text-danger">هل أنت متأكد من حذف هذا التقرير؟</h4>
+                    </div>
+                    
+                    <!-- Report Details -->
+                    <div class="alert alert-warning border-warning bg-light">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>
+                            تفاصيل التقرير المراد حذفه:
+                        </h6>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>العنوان:</strong></div>
+                            <div class="col-sm-8">{{ custom_report.title }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>الفئة المستهدفة:</strong></div>
+                            <div class="col-sm-8">{{ custom_report.get_target_type_display }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>المندوب:</strong></div>
+                            <div class="col-sm-8">
+                                {% if custom_report.mandob %}
+                                    {{ custom_report.mandob.name }}
+                                {% else %}
+                                    جميع المندوبين
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>عدد الأسئلة:</strong></div>
+                            <div class="col-sm-8">{{ custom_report.questions.count }} سؤال</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>تاريخ الإنشاء:</strong></div>
+                            <div class="col-sm-8">{{ custom_report.created|date:"d/m/Y - H:i" }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Message -->
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            تحذير هام:
+                        </h6>
+                        <ul class="mb-0">
+                            <li>سيتم حذف التقرير نهائياً ولا يمكن استرداده</li>
+                            <li>سيتم حذف جميع الأسئلة والخيارات المرتبطة بالتقرير</li>
+                            <li>سيتم حذف جميع الإجابات والردود المرتبطة بهذا التقرير (إن وجدت)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-danger btn-lg me-md-2">
+                                <i class="fas fa-trash me-2"></i>
+                                نعم، احذف التقرير
+                            </button>
+                            <a href="{% url 'list_custom_reports' %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card.border-danger {
+        border-width: 2px !important;
+    }
+    
+    .alert-warning {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,802 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل الناقل: {{ object }}
+            </h1>
+            <p class="text-muted mb-0">تعديل بيانات ومعلومات شركة النقل في النظام</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_delivery_company' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="deliveryCompanyForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Basic Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-building me-2"></i>
+                            المعلومات الأساسية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Name Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-success me-1"></i>
+                                    {{ form.name.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-building text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:object.name|default:'' }}">
+                                </div>
+                                {% for error in form.name.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">أدخل اسم شركة النقل</div>
+                            </div>
+
+                            <!-- Phone Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-phone text-success me-1"></i>
+                                    {{ form.phone.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-phone text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control form-control-lg border-2" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" value="{{ form.phone.value|default:object.phone|default:'' }}">
+                                </div>
+                                {% for error in form.phone.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">رقم الهاتف يجب أن يكون فريد</div>
+                            </div>
+
+                            <!-- Password Field (for updates, this could be change password) -->
+                            {% if form.password %}
+                            <div class="col-md-6">
+                                <label for="{{ form.password.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-key text-success me-1"></i>
+                                    كلمة المرور الجديدة
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-lock text-muted"></i>
+                                    </span>
+                                    {{ form.password }}
+                                </div>
+                                {% for error in form.password.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">اترك فارغاً للاحتفاظ بكلمة المرور الحالية</div>
+                            </div>
+                            {% endif %}
+                        
+                            <div class="col-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}" {% if form.is_active.value %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-dark" for="{{ form.is_active.id_for_label }}">
+                                        <i class="fas fa-toggle-on text-success me-1"></i>
+                                        {{ form.is_active.label }}
+                                    </label>
+                                </div>
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تفعيل أو إلغاء تفعيل في النظام</div>
+                            </div>
+                        
+                        
+                            {% if form.instance.latitude_base %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-marker text-success me-1"></i>
+                                    موقع رفع التقرير
+                                </label>
+                                <div class="input-group">
+                                   <a target="_blank" href="https://www.google.com/maps/search/{{ form.instance.latitude_base }},{{ form.instance.longitude_base }}">انتقال للموقع</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                        
+                        
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            معلومات الموقع
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Country Field -->
+                            <div class="col-md-4">
+                                <label for="{{ form.country.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-globe text-info me-1"></i>
+                                    {{ form.country.label }}
+                                </label>
+                                {{ form.country }}
+                                {% for error in form.country.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Province Field -->
+                            <div class="col-md-4">
+                                <label for="{{ form.province.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map text-info me-1"></i>
+                                    {{ form.province.label }}
+                                </label>
+                                {{ form.province }}
+                                {% for error in form.province.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- City Field -->
+                            <div class="col-md-4">
+                                <label for="{{ form.city.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-city text-info me-1"></i>
+                                    {{ form.city.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.city.name }}" id="{{ form.city.id_for_label }}" value="{{ form.city.value|default:object.city|default:'' }}">
+                                {% for error in form.city.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Location Field -->
+                            <div class="col-12">
+                                <label for="{{ form.location.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-map-pin text-info me-1"></i>
+                                    {{ form.location.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" value="{{ form.location.value|default:object.location|default:'' }}">
+                                {% for error in form.location.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">العنوان التفصيلي للشركة</div>
+                            </div>
+
+                            <!-- GPS Coordinates -->
+                            <div class="col-md-6">
+                                <label for="{{ form.latitude.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-crosshairs text-warning me-1"></i>
+                                    {{ form.latitude.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.latitude.name }}" id="{{ form.latitude.id_for_label }}" value="{{ form.latitude.value|default:object.latitude|default:'' }}">
+                                {% for error in form.latitude.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.longitude.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-crosshairs text-warning me-1"></i>
+                                    {{ form.longitude.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.longitude.name }}" id="{{ form.longitude.id_for_label }}" value="{{ form.longitude.value|default:object.longitude|default:'' }}">
+                                {% for error in form.longitude.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-briefcase me-2"></i>
+                            المعلومات التجارية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Specialty Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.specialty.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-award text-success me-1"></i>
+                                    {{ form.specialty.label }}
+                                </label>
+                                {{ form.specialty }}
+                                {% for error in form.specialty.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تخصص الشركة في النقل</div>
+                            </div>
+
+                            <!-- Balance Field (Django Rendered) -->
+                            <div class="col-md-6">
+                                <label for="{{ form.balance.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-wallet text-success me-1"></i>
+                                    {{ form.balance.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    {{ form.balance }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.balance.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">الرصيد الحالي للشركة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barcode Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-qrcode me-2"></i>
+                            معلومات الباركود
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.barcode.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-barcode text-dark me-1"></i>
+                                    {{ form.barcode.label }}
+                                </label>
+                                <input type="text" class="form-control border-2" name="{{ form.barcode.name }}" id="{{ form.barcode.id_for_label }}" value="{{ form.barcode.value|default:object.barcode|default:'' }}">
+                                {% for error in form.barcode.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.barcode_image.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-qrcode text-dark me-1"></i>
+                                    {{ form.barcode_image.label }}
+                                </label>
+                                {{ form.barcode_image }}
+                                {% for error in form.barcode_image.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                {% if object.barcode_image %}
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    ترك الحقل فارغاً سيحتفظ بالصورة الحالية
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update History Section (New for Update View) -->
+                {% if object.created or object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            سجل التعديلات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object.created %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <strong>تاريخ الإنشاء:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.created|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if object.updated %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <strong>آخر تعديل:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Current Profile Image Display -->
+                {% if object.image %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-image me-2"></i>
+                            الصورة الحالية
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ object.image.url }}" class="img-fluid rounded border mb-3" style="max-height: 200px;">
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Current Barcode Image Display -->
+                {% if object.barcode_image %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-qrcode me-2"></i>
+                            صورة الباركود الحالية
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ object.barcode_image.url }}" class="img-fluid rounded border mb-3" style="max-height: 150px;">
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Profile Image Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-image me-2"></i>
+                            تحديث صورة الشركة
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">{{ form.image.label }}</label>
+                            {{ form.image }}
+                            {% for error in form.image.errors %}
+                                <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                تحديث صورة أو شعار الشركة (اختياري)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Documents Display -->
+                {% if object.id_doc1 or object.id_doc2 or object.resident_doc1 or object.resident_doc2 or object.company_registration or object.company_doc1 or object.company_doc2 or object.company_doc3 or object.company_doc4 or object.company_doc5 %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-check me-2"></i>
+                            المستندات الحالية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if object.id_doc1 or object.id_doc2 %}
+                        <div class="mb-3">
+                            <h6 class="text-primary small">
+                                <i class="fas fa-id-card me-1"></i>
+                                وثائق الهوية
+                            </h6>
+                            {% if object.id_doc1 %}
+                            <div class="mb-1">
+                                <a href="{{ object.id_doc1.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.id_doc1.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.id_doc2 %}
+                            <div class="mb-1">
+                                <a href="{{ object.id_doc2.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.id_doc2.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if object.resident_doc1 or object.resident_doc2 %}
+                        <div class="mb-3">
+                            <h6 class="text-info small">
+                                <i class="fas fa-home me-1"></i>
+                                وثائق السكن
+                            </h6>
+                            {% if object.resident_doc1 %}
+                            <div class="mb-1">
+                                <a href="{{ object.resident_doc1.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.resident_doc1.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.resident_doc2 %}
+                            <div class="mb-1">
+                                <a href="{{ object.resident_doc2.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.resident_doc2.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if object.company_registration or object.company_doc1 or object.company_doc2 or object.company_doc3 or object.company_doc4 or object.company_doc5 %}
+                        <div class="mb-3">
+                            <h6 class="text-success small">
+                                <i class="fas fa-building me-1"></i>
+                                وثائق الشركة
+                            </h6>
+                            {% if object.company_registration %}
+                            <div class="mb-1">
+                                <a href="{{ object.company_registration.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>تسجيل الشركة
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.company_doc1 %}
+                            <div class="mb-1">
+                                <a href="{{ object.company_doc1.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.company_doc1.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.company_doc2 %}
+                            <div class="mb-1">
+                                <a href="{{ object.company_doc2.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.company_doc2.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.company_doc3 %}
+                            <div class="mb-1">
+                                <a href="{{ object.company_doc3.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.company_doc3.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.company_doc4 %}
+                            <div class="mb-1">
+                                <a href="{{ object.company_doc4.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.company_doc4.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if object.company_doc5 %}
+                            <div class="mb-1">
+                                <a href="{{ object.company_doc5.url }}" target="_blank" class="text-truncate d-block small">
+                                    <i class="fas fa-file me-1"></i>{{ object.company_doc5.name }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Documents Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>
+                            تحديث المستندات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Identity Documents -->
+                        <div class="mb-3">
+                            <h6 class="text-primary">
+                                <i class="fas fa-id-card me-1"></i>
+                                وثائق الهوية
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_doc1.label }}</label>
+                                    {{ form.id_doc1 }}
+                                    {% for error in form.id_doc1.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_doc2.label }}</label>
+                                    {{ form.id_doc2 }}
+                                    {% for error in form.id_doc2.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Residence Documents -->
+                        <div class="mb-3">
+                            <h6 class="text-info">
+                                <i class="fas fa-home me-1"></i>
+                                وثائق السكن
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.resident_doc1.label }}</label>
+                                    {{ form.resident_doc1 }}
+                                    {% for error in form.resident_doc1.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.resident_doc2.label }}</label>
+                                    {{ form.resident_doc2 }}
+                                    {% for error in form.resident_doc2.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Company Documents -->
+                        <div class="mb-3">
+                            <h6 class="text-success">
+                                <i class="fas fa-building me-1"></i>
+                                وثائق الشركة
+                            </h6>
+                            <div class="mb-2">
+                                <label class="form-label fw-bold">{{ form.company_registration.label }}</label>
+                                {{ form.company_registration }}
+                                {% for error in form.company_registration.errors %}
+                                    <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="row g-1">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold small">{{ form.company_doc1.label }}</label>
+                                    {{ form.company_doc1 }}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-bold small">{{ form.company_doc2.label }}</label>
+                                    {{ form.company_doc2 }}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-bold small">{{ form.company_doc3.label }}</label>
+                                    {{ form.company_doc3 }}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-bold small">{{ form.company_doc4.label }}</label>
+                                    {{ form.company_doc4 }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small">{{ form.company_doc5.label }}</label>
+                                    {{ form.company_doc5 }}
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_number.label }}</label>
+                                    {{ form.id_number }}
+                                    {% for error in form.id_number.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_issue_city.label }}</label>
+                                    {{ form.id_issue_city }}
+                                    {% for error in form.id_issue_city.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                        </div>
+
+
+
+                        <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_issue_date.label }}</label>
+                                    {{ form.id_issue_date }}
+                                    {% for error in form.id_issue_date.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_expire_date.label }}</label>
+                                    {{ form.id_expire_date }}
+                                    {% for error in form.id_expire_date.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                        </div>
+
+
+
+
+                        <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.id_expire_date.label }}</label>
+                                    {{ form.id_expire_date }}
+                                    {% for error in form.id_expire_date.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                        <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.house_id_issuer.label }}</label>
+                                    {{ form.house_id_issuer }}
+                                    {% for error in form.house_id_issuer.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+
+                        </div>
+
+
+
+                        <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.house_id_house_number.label }}</label>
+                                    {{ form.house_id_house_number }}
+                                    {% for error in form.house_id_house_number.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.house_id_house_street.label }}</label>
+                                    {{ form.house_id_house_street }}
+                                    {% for error in form.house_id_house_street.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                        </div>
+
+
+                        <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-bold">{{ form.house_id_house_city.label }}</label>
+                                    {{ form.house_id_house_city }}
+                                    {% for error in form.house_id_house_city.errors %}
+                                        <div class="alert alert-danger alert-sm mt-1 p-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                        </div>
+                    
+                    
+                    <br>
+                    <br>
+
+
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                ترك الحقل فارغاً سيحتفظ بالملف الحالي
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                تحديث الناقل
+                            </button>
+
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                استعادة القيم الأصلية
+                            </button>
+
+                            <a href="{% url 'list_delivery_company' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        name: '{{ object.name|escapejs }}',
+        phone: '{{ object.phone|default:"" }}',
+        city: '{{ object.city|escapejs }}',
+        location: '{{ object.location|escapejs }}',
+        latitude: '{{ object.latitude|default:"" }}',
+        longitude: '{{ object.longitude|default:"" }}',
+        barcode: '{{ object.barcode|escapejs }}',
+        country: '{{ object.country.pk|default:"" }}',
+        province: '{{ object.province.pk|default:"" }}',
+        specialty: '{{ object.specialty.pk|default:"" }}',
+        balance: '{{ object.balance|default:"0" }}'
+    };
+
+    // Reset form function - now resets to original values
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset text inputs
+            document.getElementById('{{ form.name.id_for_label }}').value = originalValues.name;
+            document.getElementById('{{ form.phone.id_for_label }}').value = originalValues.phone;
+            document.getElementById('{{ form.city.id_for_label }}').value = originalValues.city;
+            document.getElementById('{{ form.location.id_for_label }}').value = originalValues.location;
+            document.getElementById('{{ form.latitude.id_for_label }}').value = originalValues.latitude;
+            document.getElementById('{{ form.longitude.id_for_label }}').value = originalValues.longitude;
+            document.getElementById('{{ form.barcode.id_for_label }}').value = originalValues.barcode;
+
+            // Reset select fields
+            if (originalValues.country) document.getElementById('{{ form.country.id_for_label }}').value = originalValues.country;
+            if (originalValues.province) document.getElementById('{{ form.province.id_for_label }}').value = originalValues.province;
+            if (originalValues.specialty) document.getElementById('{{ form.specialty.id_for_label }}').value = originalValues.specialty;
+
+            // Reset Django rendered currency field
+            const balanceField = document.querySelector('[name="{{ form.balance.name }}"]');
+            if (balanceField) balanceField.value = originalValues.balance;
+
+            // Clear file inputs and password field (as they can't be reset to original files/passwords)
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => input.value = '');
+
+            {% if form.password %}
+            const passwordField = document.querySelector('[name="{{ form.password.name }}"]');
+            if (passwordField) passwordField.value = '';
+            {% endif %}
+        }
+    }
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

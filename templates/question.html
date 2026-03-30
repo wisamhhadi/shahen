@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <form method="post" id="languagesForm">
+        {% csrf_token %}
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0 text-gray-800">
+                    <i class="fas fa-question text-success me-2"></i>
+                     إدارة الاسئلة الاستبيانية
+                </h1>
+                <p class="text-muted mb-0">إضافة وتعديل وحذف اسئلة الاستبيانات للمندوبين</p>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button type="submit" class="btn btn-success btn-sm shadow-sm">
+                    <i class="fas fa-save me-1"></i>
+                    حفظ
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="languagesTable">
+                        <thead class="table-success">
+                            <tr>
+                                <th style="width: 50px;" class="text-center">#</th>
+                                <th style="width: 60%;">
+                                    <i class="fas fa-font me-1"></i>
+                                    نوع الاستبيان
+                                </th>
+                                <th style="width: 60%;">
+                                    <i class="fas fa-font me-1"></i>
+                                    السؤال
+                                </th>
+                                <th class="text-center" style="width: 150px;">
+                                    <i class="fas fa-toggle-on me-1"></i>
+                                    الحالة
+                                </th>
+                                <th class="text-center" style="width: 100px;">
+                                    <i class="fas fa-trash me-1"></i>
+                                    حذف
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="formsetTableBody">
+                            {{ forms.management_form }}
+                            {% for form in forms %}
+                            <tr class="formset-row" data-form-index="{{ forloop.counter0 }}">
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark row-number">{{ forloop.counter }}</span>
+                                </td>
+
+                                
+                            <td>
+                                    {% for field in form.visible_fields %}
+                                        {% if 'type' in field.title or field.label == 'نوع الاستبيان' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="fas fa-question text-muted"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                            {% if field.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in field.errors %}
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            
+                            
+                                <td>
+                                    {% for field in form.visible_fields %}
+                                        {% if 'title' in field.title or field.label == 'السؤال' %}
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">
+                                                    <i class="fas fa-question text-muted"></i>
+                                                </span>
+                                                {{ field }}
+                                            </div>
+                                            {% if field.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in field.errors %}
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <!-- Active Status Field -->
+                                <td class="text-center">
+                                    {% for field in form.visible_fields %}
+                                        {% if 'active' in field.name or 'is_active' in field.name or field.label == 'فعال؟' %}
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                {{ field }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <!-- Delete Field -->
+                                <td class="text-center">
+                                    {% for field in form.visible_fields %}
+                                        {% if 'delete' in field.name or 'DELETE' in field.name or field.label == 'حذف' %}
+                                            <div class="form-check d-flex justify-content-center">
+                                                {{ field }}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+
+                                <!-- Hidden Fields -->
+                                {% for field in form.hidden_fields %}
+                                    {{ field }}
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

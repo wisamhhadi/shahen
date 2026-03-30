@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-success me-2"></i>
+                تعديل الكود: {{ object.code }}
+            </h1>
+            <p class="text-muted mb-0">تعديل كود رصيد في النظام</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_pre_paid' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="prepaidCodeForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Code Details Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-code me-2"></i>
+                            تفاصيل الكود
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Code Field -->
+                            <div class="col-md-8">
+                                <label for="{{ form.code.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-barcode text-success me-1"></i>
+                                    {{ form.code.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-hashtag text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-lg border-2" name="{{ form.code.name }}" id="{{ form.code.id_for_label }}" value="{{ form.code.value|default:object.code|default:'' }}" placeholder="أدخل كود الرصيد">
+                                    <button type="button" class="btn btn-outline-success" onclick="generateCode()">
+                                        <i class="fas fa-magic"></i>
+                                        توليد
+                                    </button>
+                                </div>
+                                {% for error in form.code.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">كود الرصيد الذي سيستخدمه المستخدم</div>
+                            </div>
+
+                            <!-- Amount Field (Django Rendered) -->
+                            <div class="col-md-4">
+                                <label for="{{ form.amount.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-success me-1"></i>
+                                    {{ form.amount.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.amount }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.amount.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">قيمة الرصيد بالدينار</div>
+                            </div>
+
+                            <!-- User Type Field -->
+                            <div class="col-12">
+                                <label for="{{ form.user_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-tag text-success me-1"></i>
+                                    {{ form.user_type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.user_type }}
+                                {% for error in form.user_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">نوع المستخدم الذي يمكنه استخدام هذا الكود</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="{{ form.is_active.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-circle text-success me-1"></i>
+                                    {{ form.is_active.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.is_active }}
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Assignment Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>
+                            تخصيص الكود (اختياري)
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info border-0 bg-light mb-3">
+                            <h6 class="text-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                تعليمات التخصيص
+                            </h6>
+                            <p class="mb-0 small">
+                                يمكنك تخصيص الكود لمستخدم محدد، أو تركه فارغاً ليكون متاحاً لجميع المستخدمين من النوع المحدد أعلاه.
+                            </p>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- User Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.user.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-success me-1"></i>
+                                    {{ form.user.label }}
+                                </label>
+                                {{ form.user }}
+                                {% for error in form.user.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تخصيص الكود لزبون محدد</div>
+                            </div>
+
+                            <!-- Company Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-success me-1"></i>
+                                    {{ form.company.label }}
+                                </label>
+                                {{ form.company }}
+                                {% for error in form.company.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تخصيص الكود لشركة نقل محددة</div>
+                            </div>
+
+                            <!-- Captain Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-cog text-success me-1"></i>
+                                    {{ form.captain.label }}
+                                </label>
+                                {{ form.captain }}
+                                {% for error in form.captain.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تخصيص الكود لسائق محدد</div>
+                            </div>
+
+                            <!-- Mandob Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-check text-success me-1"></i>
+                                    {{ form.mandob.label }}
+                                </label>
+                                {{ form.mandob }}
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">تخصيص الكود لمندوب محدد</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Usage Status (New for Update View) -->
+                {% if object.used_at or object.used_by %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            حالة استخدام الكود
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% if object.used_at %}
+                        <div class="alert alert-warning">
+                            <h6 class="text-warning">
+                                <i class="fas fa-check-circle me-1"></i>
+                                تم استخدام الكود
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>تاريخ الاستخدام:</strong>
+                                    <p class="mb-0">{{ object.used_at|date:"d/m/Y - H:i" }}</p>
+                                </div>
+                                {% if object.used_by %}
+                                <div class="col-md-6">
+                                    <strong>المستخدم:</strong>
+                                    <p class="mb-0">{{ object.used_by }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-success">
+                            <h6 class="text-success">
+                                <i class="fas fa-clock me-1"></i>
+                                الكود لم يتم استخدامه بعد
+                            </h6>
+                            <p class="mb-0">يمكن تعديل الكود حيث أنه لم يتم استخدامه من قبل أي مستخدم.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Update History Section -->
+                {% if object.created or object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            سجل التعديلات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object.created %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <strong>تاريخ الإنشاء:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.created|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if object.updated %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <strong>آخر تعديل:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Current Code Info -->
+                {% if object.user or object.company or object.captain or object.mandob %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user-check me-2"></i>
+                            التخصيص الحالي
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>نوع المستخدم:</strong> 
+                            <span class="badge bg-success">{{ object.user_type }}</span>
+                        </div>
+
+                        {% if object.user %}
+                        <div class="mb-2">
+                            <i class="fas fa-user text-success me-1"></i>
+                            <strong>الزبون:</strong> {{ object.user }}
+                        </div>
+                        {% endif %}
+
+                        {% if object.company %}
+                        <div class="mb-2">
+                            <i class="fas fa-building text-success me-1"></i>
+                            <strong>الشركة:</strong> {{ object.company }}
+                        </div>
+                        {% endif %}
+
+                        {% if object.captain %}
+                        <div class="mb-2">
+                            <i class="fas fa-user-cog text-success me-1"></i>
+                            <strong>السائق:</strong> {{ object.captain }}
+                        </div>
+                        {% endif %}
+
+                        {% if object.mandob %}
+                        <div class="mb-2">
+                            <i class="fas fa-user-check text-success me-1"></i>
+                            <strong>المندوب:</strong> {{ object.mandob }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Code Preview Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-eye me-2"></i>
+                            معاينة الكود
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="code-preview border rounded p-4 bg-light">
+                            <div class="mb-3">
+                                <i class="fas fa-ticket-alt text-success fa-3x"></i>
+                            </div>
+                            <div class="mb-2">
+                                <h5 class="text-success mb-1 preview-code">{{ object.code|default:"كود الرصيد" }}</h5>
+                                <p class="text-muted mb-0 small">كود قابل للاستخدام</p>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <small class="text-muted">القيمة</small>
+                                    <div class="h6 text-success preview-amount">{{ object.amount|default:"0" }} دينار</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">النوع</small>
+                                    <div class="h6 text-primary preview-user-type">{{ object.user_type|default:"غير محدد" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            هكذا سيظهر الكود في النظام
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Guidelines -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            إرشادات التعديل
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0 bg-light">
+                            <h6 class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                نصائح مهمة
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>لا يمكن تعديل الكود المستخدم</li>
+                                <li>تأكد من صحة قيمة الرصيد الجديدة</li>
+                                <li>تغيير نوع المستخدم قد يؤثر على التخصيص</li>
+                                <li>الكود يُستخدم مرة واحدة فقط</li>
+                                <li>يمكن توليد كود جديد إذا لزم الأمر</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                تحديث الكود
+                            </button>
+
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                استعادة القيم الأصلية
+                            </button>
+
+                            <a href="{% url 'list_pre_paid' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .code-preview {
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .preview-code {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        code: '{{ object.code|escapejs }}',
+        amount: '{{ object.amount|default:"0" }}',
+        user_type: '{{ object.user_type.pk|default:"" }}',
+        is_active: '{{ object.is_active.pk|default:"" }}',
+        user: '{{ object.user.pk|default:"" }}',
+        company: '{{ object.company.pk|default:"" }}',
+        captain: '{{ object.captain.pk|default:"" }}',
+        mandob: '{{ object.mandob.pk|default:"" }}'
+    };
+
+    // Generate random code
+    function generateCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('{{ form.code.id_for_label }}').value = code;
+        updatePreview();
+    }
+
+    // Reset form function
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset text input
+            document.getElementById('{{ form.code.id_for_label }}').value = originalValues.code;
+
+            // Reset select fields
+            if (originalValues.user_type) document.getElementById('{{ form.user_type.id_for_label }}').value = originalValues.user_type;
+            if (originalValues.is_active) document.getElementById('{{ form.is_active.id_for_label }}').value = originalValues.is_active;
+            if (originalValues.user) document.getElementById('{{ form.user.id_for_label }}').value = originalValues.user;
+            if (originalValues.company) document.getElementById('{{ form.company.id_for_label }}').value = originalValues.company;
+            if (originalValues.captain) document.getElementById('{{ form.captain.id_for_label }}').value = originalValues.captain;
+            if (originalValues.mandob) document.getElementById('{{ form.mandob.id_for_label }}').value = originalValues.mandob;
+
+            // Reset Django rendered currency field
+            const amountField = document.querySelector('[name="{{ form.amount.name }}"]');
+            if (amountField) amountField.value = originalValues.amount;
+
+            // Reset preview
+            updatePreview();
+        }
+    }
+
+    // Update preview when form changes
+    function updatePreview() {
+        const codeInput = document.getElementById('{{ form.code.id_for_label }}');
+        const amountInput = document.querySelector('[name="{{ form.amount.name }}"]');
+        const userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+
+        const previewCode = document.querySelector('.preview-code');
+        const previewAmount = document.querySelector('.preview-amount');
+        const previewUserType = document.querySelector('.preview-user-type');
+
+        // Update code
+        previewCode.textContent = codeInput.value || originalValues.code || 'كود الرصيد';
+
+        // Update amount
+        const amount = amountInput ? amountInput.value : originalValues.amount;
+        previewAmount.textContent = parseFloat(amount || 0).toLocaleString('ar-SA') + ' دينار';
+
+        // Update user type
+        const userTypeText = userTypeSelect.options[userTypeSelect.selectedIndex].text;
+        previewUserType.textContent = userTypeText;
+    }
+
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeInput = document.getElementById('{{ form.code.id_for_label }}');
+        const amountInput = document.querySelector('[name="{{ form.amount.name }}"]');
+        const userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+
+        codeInput.addEventListener('input', updatePreview);
+        if (amountInput) amountInput.addEventListener('input', updatePreview);
+        userTypeSelect.addEventListener('change', updatePreview);
+
+        // Initial update
+        updatePreview();
+    });
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

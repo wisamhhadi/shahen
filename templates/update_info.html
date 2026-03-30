@@ -1,0 +1,447 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-cogs text-success me-2"></i>
+                إعدادات النظام
+            </h1>
+            <p class="text-muted mb-0">تحديث وإدارة إعدادات التطبيق العامة</p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success-soft text-success">
+                <i class="fas fa-shield-alt me-1"></i>
+                إعدادات النظام
+            </span>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="settingsForm">
+        {% csrf_token %}
+        {{ form.media }}
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Social Media Links Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-share-alt me-2"></i>
+                            روابط وسائل التواصل الاجتماعي
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- WhatsApp Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.whatsapp.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fab fa-whatsapp text-success me-1"></i>
+                                    {{ form.whatsapp.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fab fa-whatsapp text-success"></i>
+                                    </span>
+                                    <input type="url" class="form-control border-2" name="{{ form.whatsapp.name }}" id="{{ form.whatsapp.id_for_label }}" value="{{ form.whatsapp.value|default:object.whatsapp|default:'' }}" placeholder="https://wa.me/1234567890">
+                                </div>
+                                {% for error in form.whatsapp.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">رابط واتس اب للتواصل مع العملاء</div>
+                            </div>
+
+                            <!-- Facebook Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.facebook.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fab fa-facebook text-primary me-1"></i>
+                                    {{ form.facebook.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fab fa-facebook text-primary"></i>
+                                    </span>
+                                    <input type="url" class="form-control border-2" name="{{ form.facebook.name }}" id="{{ form.facebook.id_for_label }}" value="{{ form.facebook.value|default:object.facebook|default:'' }}" placeholder="https://facebook.com/yourpage">
+                                </div>
+                                {% for error in form.facebook.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">رابط صفحة الفيسبوك الرسمية</div>
+                            </div>
+
+                            <!-- Instagram Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.instagram.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fab fa-instagram text-danger me-1"></i>
+                                    {{ form.instagram.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fab fa-instagram text-danger"></i>
+                                    </span>
+                                    <input type="url" class="form-control border-2" name="{{ form.instagram.name }}" id="{{ form.instagram.id_for_label }}" value="{{ form.instagram.value|default:object.instagram|default:'' }}" placeholder="https://instagram.com/youraccount">
+                                </div>
+                                {% for error in form.instagram.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">رابط حساب الانستغرام</div>
+                            </div>
+
+                            <!-- TikTok Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.tiktok.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fab fa-tiktok text-dark me-1"></i>
+                                    {{ form.tiktok.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fab fa-tiktok text-dark"></i>
+                                    </span>
+                                    <input type="url" class="form-control border-2" name="{{ form.tiktok.name }}" id="{{ form.tiktok.id_for_label }}" value="{{ form.tiktok.value|default:object.tiktok|default:'' }}" placeholder="https://tiktok.com/@youraccount">
+                                </div>
+                                {% for error in form.tiktok.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">رابط حساب التيك توك</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Pages Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>
+                            صفحات المحتوى
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- About Page Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.about.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-info-circle text-info me-1"></i>
+                                    {{ form.about.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-info-circle text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" name="{{ form.about.name }}" id="{{ form.about.id_for_label }}" value="{{ form.about.value|default:object.about|default:'' }}" placeholder="https://yoursite.com/about">
+                                </div>
+                                {% for error in form.about.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text"> "عنا" أو "من نحن"</div>
+                            </div>
+
+                            <!-- Privacy Page Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.privacy.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-shield-alt text-info me-1"></i>
+                                    {{ form.privacy.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-shield-alt text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-2" name="{{ form.privacy.name }}" id="{{ form.privacy.id_for_label }}" value="{{ form.privacy.value|default:object.privacy|default:'' }}" placeholder="https://yoursite.com/privacy">
+                                </div>
+                                {% for error in form.privacy.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text"> سياسة الخصوصية</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Configuration Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-sliders-h me-2"></i>
+                            إعدادات النظام
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Offer Time Field (Django Rendered) -->
+                            <div class="col-md-6">
+                                <label for="{{ form.offer_time.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-clock text-warning me-1"></i>
+                                    {{ form.offer_time.label }}
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-clock text-muted"></i>
+                                    </span>
+                                    {{ form.offer_time }}
+                                    <span class="input-group-text border-2 text-muted">دقيقة</span>
+                                </div>
+                                {% for error in form.offer_time.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">المدة الزمنية لعرض العروض بالدقائق</div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update History Section -->
+                {% if object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            آخر تحديث
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-edit text-warning me-2"></i>
+                            <div>
+                                <strong>آخر تعديل للإعدادات:</strong>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Settings Overview -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            نظرة عامة على الإعدادات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="settings-overview">
+                            <!-- Social Media Status -->
+                            <div class="mb-3">
+                                <h6 class="text-success">
+                                    <i class="fas fa-share-alt me-1"></i>
+                                    وسائل التواصل الاجتماعي
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded">
+                                            <i class="fab fa-whatsapp text-success fa-lg"></i>
+                                            <div class="small text-muted">واتس اب</div>
+                                            <div class="badge bg-{% if object.whatsapp %}success{% else %}secondary{% endif %} badge-sm">
+                                                {% if object.whatsapp %}مفعل{% else %}غير مفعل{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded">
+                                            <i class="fab fa-facebook text-primary fa-lg"></i>
+                                            <div class="small text-muted">فيسبوك</div>
+                                            <div class="badge bg-{% if object.facebook %}success{% else %}secondary{% endif %} badge-sm">
+                                                {% if object.facebook %}مفعل{% else %}غير مفعل{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row text-center mt-2">
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded">
+                                            <i class="fab fa-instagram text-danger fa-lg"></i>
+                                            <div class="small text-muted">انستغرام</div>
+                                            <div class="badge bg-{% if object.instagram %}success{% else %}secondary{% endif %} badge-sm">
+                                                {% if object.instagram %}مفعل{% else %}غير مفعل{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 border rounded">
+                                            <i class="fab fa-tiktok text-dark fa-lg"></i>
+                                            <div class="small text-muted">تيك توك</div>
+                                            <div class="badge bg-{% if object.tiktok %}success{% else %}secondary{% endif %} badge-sm">
+                                                {% if object.tiktok %}مفعل{% else %}غير مفعل{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Content Pages Status -->
+                            <div class="mb-3">
+                                <h6 class="text-info">
+                                    <i class="fas fa-file-alt me-1"></i>
+                                    صفحات المحتوى
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small">صفحة عنا:</span>
+                                    <span class="badge bg-{% if object.about %}success{% else %}secondary{% endif %}">
+                                        {% if object.about %}متوفرة{% else %}غير متوفرة{% endif %}
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small">سياسة الخصوصية:</span>
+                                    <span class="badge bg-{% if object.privacy %}success{% else %}secondary{% endif %}">
+                                        {% if object.privacy %}متوفرة{% else %}غير متوفرة{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- System Settings -->
+                            <div class="mb-3">
+                                <h6 class="text-warning">
+                                    <i class="fas fa-cogs me-1"></i>
+                                    إعدادات النظام
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small">وقت العرض:</span>
+                                    <span class="badge bg-primary">{{ object.offer_time|default:"0" }} دقيقة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Guidelines -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            إرشادات التكوين
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0 bg-light">
+                            <h6 class="text-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                نصائح مهمة
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>تأكد من صحة جميع الروابط المدخلة</li>
+                                <li>اختبر روابط وسائل التواصل بانتظام</li>
+                                <li>حدث صفحات المحتوى حسب الحاجة</li>
+                                <li>اضبط وقت العرض بناءً على تجربة المستخدم</li>
+                                <li>احتفظ بنسخة احتياطية من الإعدادات</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                حفظ الإعدادات
+                            </button>
+
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                استعادة القيم الأصلية
+                            </button>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                جميع الحقول اختيارية ويمكن تركها فارغة
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .settings-overview {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .badge-sm {
+        font-size: 0.7em;
+    }
+
+    .bg-success-soft {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        whatsapp: '{{ object.whatsapp|escapejs }}',
+        facebook: '{{ object.facebook|escapejs }}',
+        instagram: '{{ object.instagram|escapejs }}',
+        tiktok: '{{ object.tiktok|escapejs }}',
+        about: '{{ object.about|escapejs }}',
+        privacy: '{{ object.privacy|escapejs }}',
+        offer_time: '{{ object.offer_time|default:"0" }}'
+    };
+
+    // Reset form function - now resets to original values
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            // Reset URL inputs
+            document.getElementById('{{ form.whatsapp.id_for_label }}').value = originalValues.whatsapp;
+            document.getElementById('{{ form.facebook.id_for_label }}').value = originalValues.facebook;
+            document.getElementById('{{ form.instagram.id_for_label }}').value = originalValues.instagram;
+            document.getElementById('{{ form.tiktok.id_for_label }}').value = originalValues.tiktok;
+            document.getElementById('{{ form.about.id_for_label }}').value = originalValues.about;
+            document.getElementById('{{ form.privacy.id_for_label }}').value = originalValues.privacy;
+
+            // Reset Django rendered number field
+            const offerTimeField = document.querySelector('[name="{{ form.offer_time.name }}"]');
+            if (offerTimeField) offerTimeField.value = originalValues.offer_time;
+        }
+    }
+
+
+
+</script>
+
+{{ form.media }}
+{% endblock scripts %}

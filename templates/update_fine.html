@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit text-danger me-2"></i>
+                تعديل الغرامة: {{ object }}
+            </h1>
+            <p class="text-muted mb-0">تعديل غرامة مالية في النظام</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'list_fine' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+    <!-- Form Container -->
+    <form method="post" action="" enctype="multipart/form-data" id="fineForm">
+        {% csrf_token %}
+        {{ form.media }}
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Fine Details Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-gavel me-2"></i>
+                            تفاصيل الغرامة
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- User Type Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.user_type.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-tag text-danger me-1"></i>
+                                    {{ form.user_type.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.user_type }}
+                                {% for error in form.user_type.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">نوع المستخدم المستهدف للغرامة</div>
+                            </div>
+                            <!-- Amount Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.amount.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-dollar-sign text-warning me-1"></i>
+                                    {{ form.amount.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2">
+                                        <i class="fas fa-dollar-sign text-muted"></i>
+                                    </span>
+                                    {{ form.amount }}
+                                    <span class="input-group-text border-2 text-muted">دينار</span>
+                                </div>
+                                {% for error in form.amount.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                                <div class="form-text">قيمة الغرامة بالدينار العراقي</div>
+                            </div>
+                            <!-- Is Active Field -->
+                            <div class="col-12">
+                                <label for="{{ form.is_active.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-circle text-success me-1"></i>
+                                    {{ form.is_active.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                {{ form.is_active }}
+                                {% for error in form.is_active.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recipient Selection Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            اختيار المستقبل
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info border-0 bg-light mb-3">
+                            <h6 class="text-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                تعليمات الاختيار
+                            </h6>
+                            <p class="mb-0 small">
+                                اختر المستخدم المحدد الذي سيتم تطبيق الغرامة عليه. يجب اختيار مستخدم واحد فقط حسب نوع المستخدم المحدد أعلاه.
+                            </p>
+                        </div>
+                        <div class="row g-3">
+                            <!-- User Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.user.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user text-primary me-1"></i>
+                                    {{ form.user.label }}
+                                </label>
+                                {{ form.user }}
+                                {% for error in form.user.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر زبون محدد</div>
+                            </div>
+                            <!-- Company Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-primary me-1"></i>
+                                    {{ form.company.label }}
+                                </label>
+                                {{ form.company }}
+                                {% for error in form.company.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر شركة نقل محددة</div>
+                            </div>
+                            <!-- Captain Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.captain.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-cog text-primary me-1"></i>
+                                    {{ form.captain.label }}
+                                </label>
+                                {{ form.captain }}
+                                {% for error in form.captain.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر سائق محدد</div>
+                            </div>
+                            <!-- Mandob Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.mandob.id_for_label }}" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-user-check text-primary me-1"></i>
+                                    {{ form.mandob.label }}
+                                </label>
+                                {{ form.mandob }}
+                                {% for error in form.mandob.errors %}
+                                    <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">اختر مندوب محدد</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Notes Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-sticky-note me-2"></i>
+                            ملاحظات إضافية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label for="{{ form.note.id_for_label }}" class="form-label fw-bold text-dark">
+                            <i class="fas fa-edit text-dark me-1"></i>
+                            {{ form.note.label }}
+                        </label>
+                        <textarea class="form-control border-2" name="{{ form.note.name }}" id="{{ form.note.id_for_label }}" rows="4" placeholder="أضف أي ملاحظات إضافية حول الغرامة...">{{ form.note.value|default:object.note|default:'' }}</textarea>
+                        {% for error in form.note.errors %}
+                            <div class="alert alert-danger alert-sm mt-2 p-2">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">ملاحظات إضافية حول الغرامة (اختياري)</div>
+                    </div>
+                </div>
+                <!-- Update History Section -->
+                {% if object.created or object.updated %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            سجل التعديلات
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object.created %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <strong>تاريخ الإنشاء:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.created|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if object.updated %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <strong>آخر تعديل:</strong>
+                                </div>
+                                <p class="text-muted mb-0">{{ object.updated|date:"d/m/Y - H:i" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Current Fine Info -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            معلومات الغرامة الحالية
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="voucher-summary">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">نوع المستخدم:</small>
+                                </div>
+                                <div class="col-6">
+                                    <span class="badge bg-secondary">{{ object.user_type }}</span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <strong class="text-dark">القيمة الحالية:</strong>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="text-danger mb-0">
+                                        {{ object.amount|default:"0" }} دينار
+                                    </h5>
+                                </div>
+                            </div>
+                            {% if object.user or object.company or object.captain or object.mandob %}
+                            <hr>
+                            <div class="mb-2">
+                                <strong>المستقبل:</strong>
+                            </div>
+                            {% if object.user %}
+                            <div class="mb-1">
+                                <i class="fas fa-user text-success me-1"></i>
+                                الزبون: {{ object.user }}
+                            </div>
+                            {% endif %}
+                            {% if object.company %}
+                            <div class="mb-1">
+                                <i class="fas fa-building text-success me-1"></i>
+                                الشركة: {{ object.company }}
+                            </div>
+                            {% endif %}
+                            {% if object.captain %}
+                            <div class="mb-1">
+                                <i class="fas fa-user-cog text-success me-1"></i>
+                                السائق: {{ object.captain }}
+                            </div>
+                            {% endif %}
+                            {% if object.mandob %}
+                            <div class="mb-1">
+                                <i class="fas fa-user-check text-success me-1"></i>
+                                المندوب: {{ object.mandob }}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <!-- Fine Summary Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>
+                            ملخص الغرامة المحدث
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="voucher-summary">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">نوع المستخدم:</small>
+                                </div>
+                                <div class="col-6">
+                                    <span class="badge bg-secondary summary-user-type">{{ object.user_type|default:"غير محدد" }}</span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <strong class="text-dark">القيمة الجديدة:</strong>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="text-danger mb-0">
+                                        <span class="summary-amount">{{ object.amount|default:"0" }}</span> دينار
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="alert alert-light border">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    هذا ملخص الغرامة بعد التحديث
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Guidelines -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            تعليمات التعديل
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0 bg-light">
+                            <h6 class="text-warning">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                إرشادات الغرامات
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>تأكد من اختيار نوع المستخدم الصحيح</li>
+                                <li>راجع القيمة المدخلة بعناية</li>
+                                <li>التعديل قد يؤثر على الحسابات المالية</li>
+                                <li>أضف ملاحظات توضيحية للتعديل</li>
+                                <li>تأكد من المستقبل المحدد</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form Actions -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                تحديث الغرامة
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-undo me-2"></i>
+                                استعادة القيم الأصلية
+                            </button>
+                            <a href="{% url 'list_fine' %}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>
+                                إلغاء
+                            </a>
+                        </div>
+                        <hr class="my-3">
+                        <div class="alert alert-info border-0 bg-light">
+                            <small>
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                الحقول المميزة بـ <span class="text-danger">*</span> إجبارية
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<style>
+    .voucher-summary {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    .summary-amount {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+</style>
+{% endblock %}
+{% block scripts %}
+<script>
+    // Store original values for reset functionality
+    const originalValues = {
+        user_type: '{{ object.user_type.pk|default:"" }}',
+        amount: '{{ object.amount|default:"0" }}',
+        is_active: '{{ object.is_active.pk|default:"" }}',
+        user: '{{ object.user.pk|default:"" }}',
+        company: '{{ object.company.pk|default:"" }}',
+        captain: '{{ object.captain.pk|default:"" }}',
+        mandob: '{{ object.mandob.pk|default:"" }}',
+        note: '{{ object.note|escapejs }}'
+    };
+    // Reset form function
+    function resetForm() {
+        if (confirm('هل أنت متأكد من استعادة القيم الأصلية؟ سيتم فقدان جميع التعديلات الحالية.')) {
+            if (originalValues.user_type) document.getElementById('{{ form.user_type.id_for_label }}').value = originalValues.user_type;
+            if (originalValues.is_active) document.getElementById('{{ form.is_active.id_for_label }}').value = originalValues.is_active;
+            if (originalValues.user) document.getElementById('{{ form.user.id_for_label }}').value = originalValues.user;
+            if (originalValues.company) document.getElementById('{{ form.company.id_for_label }}').value = originalValues.company;
+            if (originalValues.captain) document.getElementById('{{ form.captain.id_for_label }}').value = originalValues.captain;
+            if (originalValues.mandob) document.getElementById('{{ form.mandob.id_for_label }}').value = originalValues.mandob;
+            // Reset Django rendered currency field
+            const amountField = document.querySelector('[name="{{ form.amount.name }}"]');
+            if (amountField) amountField.value = originalValues.amount;
+            // Reset textarea
+            document.getElementById('{{ form.note.id_for_label }}').value = originalValues.note;
+            // Reset summary
+            updateSummary();
+        }
+    }
+    // Update summary when form changes
+    function updateSummary() {
+        const userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+        const amountInput = document.querySelector('[name="{{ form.amount.name }}"]');
+        const summaryUserType = document.querySelector('.summary-user-type');
+        const summaryAmount = document.querySelector('.summary-amount');
+        // Update user type
+        const userTypeText = userTypeSelect.options[userTypeSelect.selectedIndex].text;
+        summaryUserType.textContent = userTypeText;
+        // Update amount
+        const amount = amountInput.value || '0';
+        summaryAmount.textContent = parseFloat(amount).toLocaleString('ar-SA');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+        const amountInput = document.querySelector('[name="{{ form.amount.name }}"]');
+        userTypeSelect.addEventListener('change', updateSummary);
+        if (amountInput) amountInput.addEventListener('input', updateSummary);
+        updateSummary();
+    });
+</script>
+{{ form.media }}
+{% endblock scripts %} 

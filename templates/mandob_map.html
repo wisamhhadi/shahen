@@ -652,6 +652,38 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+        let userMarker = null;
+
+if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            if (userMarker) {
+                userMarker.setLatLng([lat, lng]);
+            } else {
+                userMarker = L.marker([lat, lng]).addTo(map)
+                    .bindPopup("موقعك الحالي")
+                    .openPopup();
+            }
+
+            map.setView([lat, lng], 15);
+            console.log("LAT:", lat, "LNG:", lng);
+        },
+        function(error) {
+            console.log("GPS ERROR:", error);
+            alert("تعذر الحصول على الموقع: " + error.message);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+} else {
+    alert("المتصفح لا يدعم GPS");
+};
 
         // Initialize map search
         initializeMapSearch();

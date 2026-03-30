@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     'mandob',
     'order',
     'user',
-    'django_humanize',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

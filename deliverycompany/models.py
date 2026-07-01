@@ -10,7 +10,7 @@ from shahen import settings
 
 class DeliveryCompany(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(_("الاسم"), max_length=200)
-    phone = models.IntegerField(_("الهاتف"), unique=True)
+    phone = models.CharField(_("الهاتف"), max_length=20, unique=True)
     country = models.ForeignKey('core.Country', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("الدولة"), )
     province = models.ForeignKey('core.Province', on_delete=models.SET_NULL, null=True, blank=True,
                                  verbose_name=_("المحافظة"), )

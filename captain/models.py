@@ -20,7 +20,7 @@ class Captain(AbstractBaseUser, PermissionsMixin):
     car = models.ForeignKey('core.Car', on_delete=models.SET_NULL, null=True, blank=True, related_name="car_captain_model",
                             verbose_name=_("السيارة"))
     name = models.CharField(_("الاسم"), max_length=200)
-    phone = models.IntegerField(_("الهاتف"), unique=True)
+    phone = models.BigIntegerField(_("الهاتف"), unique=True)
     country = models.ForeignKey('core.Country', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("الدولة"))
     province = models.ForeignKey('core.Province', on_delete=models.SET_NULL, null=True, blank=True,
                                  verbose_name=_("المحافظة"))

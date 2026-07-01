@@ -1,14 +1,17 @@
+import secrets
+
 from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.hashers import check_password
 from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from mandob.models import Mandob, OrderReport
-from captain.models import Captain
+from captain.models import Captain, CaptainToken
 from deliverycompany.models import DeliveryCompany
 from order.models import Order
 from user.models import User as ClientUser
@@ -94,7 +97,9 @@ def api_mandobs(request):
         )
 
     qs = limit_queryset(request, qs)
-    return Response(MandobSerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        MandobSerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["GET"])
@@ -127,7 +132,9 @@ def api_captains(request):
         )
 
     qs = limit_queryset(request, qs)
-    return Response(CaptainSerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        CaptainSerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["GET"])
@@ -159,7 +166,9 @@ def api_delivery_companies(request):
         )
 
     qs = limit_queryset(request, qs)
-    return Response(DeliveryCompanySerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        DeliveryCompanySerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["GET"])
@@ -192,7 +201,9 @@ def api_users(request):
         )
 
     qs = limit_queryset(request, qs)
-    return Response(ClientUserSerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        ClientUserSerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["GET"])
@@ -227,7 +238,9 @@ def api_orders(request):
         qs = qs.filter(captain_status=captain_status)
 
     qs = limit_queryset(request, qs)
-    return Response(OrderSerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        OrderSerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["GET"])
@@ -258,7 +271,9 @@ def api_order_reports(request):
         )
 
     qs = limit_queryset(request, qs)
-    return Response(OrderReportSerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        OrderReportSerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["GET"])
@@ -270,3 +285,154 @@ def api_order_report_detail(request, pk):
         return Response({"detail": "Order report not found"}, status=404)
 
     return Response(OrderReportSerializer(obj, context={"request": request}).data)
+
+
+def _check_captain_password(captain, raw_password):
+    if hasattr(captain, "check_password"):
+        return captain.check_password(raw_password)
+
+    try:
+        return check_password(raw_password, captain.password)
+    except Exception:
+        return captain.password == raw_password
+
+
+def _get_captain_by_phone(phone):
+    phone_text = str(phone).strip()
+    digits = "".join(ch for ch in phone_text if ch.isdigit())
+
+    candidates = [digits]
+
+    if digits.startswith("0"):
+        candidates.append(digits[1:])
+
+    for item in candidates:
+        if not item:
+            continue
+
+        try:
+            return Captain.objects.get(phone=int(item))
+        except Captain.DoesNotExist:
+            continue
+        except ValueError:
+            continue
+
+    return None
+
+
+def _get_captain_from_token(request):
+    auth_header = (
+        request.META.get("HTTP_AUTHORIZATION")
+        or request.headers.get("Authorization")
+        or ""
+    ).strip()
+
+    token = ""
+
+    if auth_header:
+        parts = auth_header.split()
+
+        if len(parts) == 2 and parts[0].lower() in ["token", "captaintoken"]:
+            token = parts[1].strip()
+        else:
+            token = (
+                auth_header
+                .replace("CaptainToken", "")
+                .replace("Token", "")
+                .strip()
+            )
+
+    if not token:
+        token = request.GET.get("token", "").strip()
+
+    if not token:
+        return None
+
+    try:
+        token_obj = CaptainToken.objects.select_related("user").get(key=token)
+        return token_obj.user
+    except CaptainToken.DoesNotExist:
+        return None
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_captain_login(request):
+    phone = request.data.get("phone")
+    password = request.data.get("password")
+
+    if not phone or not password:
+        return Response(
+            {"detail": "phone and password are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    captain = _get_captain_by_phone(phone)
+
+    if captain is None:
+        return Response(
+            {"detail": "Invalid phone or password"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    if not _check_captain_password(captain, password):
+        return Response(
+            {"detail": "Invalid phone or password"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    token_obj, created = CaptainToken.objects.get_or_create(
+        user=captain,
+        defaults={"key": secrets.token_hex(20)},
+    )
+
+    if not token_obj.key:
+        token_obj.key = secrets.token_hex(20)
+        token_obj.save()
+
+    captain.is_logged = True
+    captain.save(update_fields=["is_logged"])
+
+    return Response({
+        "token": token_obj.key,
+        "captain": CaptainSerializer(captain, context={"request": request}).data,
+    })
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_captain_me(request):
+    captain = _get_captain_from_token(request)
+
+    if captain is None:
+        return Response(
+            {"detail": "Invalid or missing captain token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    return Response({
+        "captain": CaptainSerializer(captain, context={"request": request}).data,
+    })
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_captain_orders(request):
+    captain = _get_captain_from_token(request)
+
+    if captain is None:
+        return Response(
+            {"detail": "Invalid or missing captain token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    qs = Order.objects.filter(captain=captain).order_by("-id")
+    qs = limit_queryset(request, qs)
+
+    return Response(
+        OrderSerializer(qs, many=True, context={"request": request}).data
+    )
+    

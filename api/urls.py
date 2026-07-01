@@ -22,4 +22,7 @@ urlpatterns = [
 
     path("order-reports/", views.api_order_reports, name="api_order_reports"),
     path("order-reports/<int:pk>/", views.api_order_report_detail, name="api_order_report_detail"),
+    path("captain/login/", views.api_captain_login, name="api_captain_login"),
+    path("captain/me/", views.api_captain_me, name="api_captain_me"),
+    path("captain/orders/", views.api_captain_orders, name="api_captain_orders"),
 ]

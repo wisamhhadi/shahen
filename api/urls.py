@@ -25,4 +25,24 @@ urlpatterns = [
     path("captain/login/", views.api_captain_login, name="api_captain_login"),
     path("captain/me/", views.api_captain_me, name="api_captain_me"),
     path("captain/orders/", views.api_captain_orders, name="api_captain_orders"),
+    path(
+    "captain/orders/<int:pk>/accept/",
+    views.api_captain_accept_order,
+    name="api_captain_accept_order",
+),
+path(
+    "captain/orders/<int:pk>/reject/",
+    views.api_captain_reject_order,
+    name="api_captain_reject_order",
+),
+path(
+    "captain/orders/<int:pk>/accept/",
+    views.api_captain_accept_order,
+    name="api_captain_accept_order",
+),
+path(
+    "captain/orders/<int:pk>/reject/",
+    views.api_captain_reject_order,
+    name="api_captain_reject_order",
+),
 ]

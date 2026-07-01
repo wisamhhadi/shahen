@@ -1,39 +1,26 @@
 from django.contrib import admin
 from django.urls import path, include
-from core.views import ListCreateAutoView, RetrieveUpdateDestroyAutoView
 from django.conf import settings
 from django.conf.urls.static import static
-from core.views import MandobLogin,CaptainLogin,UserLogin,DeliveryCompanyLogin
-from home.urls import urlpatterns as home_urls
+
+# إذا عندك imports قديمة للصفحات، اتركها كما هي
+# مثال:
+# from home import views
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/v1/<str:app>/<str:model>', ListCreateAutoView.as_view()),
-    path('api/v1/<str:app>/<str:model>/<int:pk>', RetrieveUpdateDestroyAutoView.as_view()),
-    path('api/v1/MandobLogin', MandobLogin.as_view()),
-    path('api/v1/CaptainLogin', CaptainLogin.as_view()),
-    path('api/v1/UserLogin', UserLogin.as_view()),
-    path('api/v1/DeliveryCompanyLogin', DeliveryCompanyLogin.as_view()),
-    path('api/', include('api.urls')),
+    path("admin/", admin.site.urls),
 
-    path('', include(home_urls)),
+    # API للموبايل
+    path("api/", include("api.urls")),
+
+    # روابط مشروعك القديمة اتركها هنا
+    # مثال:
+    # path("", views.home, name="home"),
+    # path("profile", views.profile, name="profile"),
+    # path("mandob_map", views.mandob_map, name="mandob_map"),
 ]
 
-
+# ملفات media أثناء التطوير
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-try:
-    try:
-        from core.models import Info
-
-        Info.objects.get(id=1)
-    except:
-        inf = Info()
-        inf.save()
-except Exception as e:
-    print("migraition not donnee")
-    print(e)
-
-

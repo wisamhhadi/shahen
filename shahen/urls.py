@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/v1/CaptainLogin', CaptainLogin.as_view()),
     path('api/v1/UserLogin', UserLogin.as_view()),
     path('api/v1/DeliveryCompanyLogin', DeliveryCompanyLogin.as_view()),
+    path('api/', include('api.urls')),
 
     path('', include(home_urls)),
 ]

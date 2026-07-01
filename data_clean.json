@@ -1,0 +1,810 @@
+[
+  {
+    "model": "core.admin",
+    "fields": {
+      "password": "pbkdf2_sha256$600000$d88RK2G9B6grMsnsposU06$I7aVgNRbXxDsXufm9P/2oYFL685v41+kklSfrArP6Zs=",
+      "last_login": "2025-08-21T10:08:09.629Z",
+      "is_superuser": false,
+      "phone": 7810086970,
+      "name": "zain amer",
+      "job_title": "مسؤول مندوبين",
+      "salary": 0,
+      "manager": null,
+      "image": "",
+      "permission_group": null,
+      "is_active": true,
+      "is_staff": false,
+      "employee": null,
+      "updated": "2025-08-11T08:17:58.649Z",
+      "created": "2025-08-11T07:45:58.990Z",
+      "note": ""
+    }
+  },
+  {
+    "model": "core.admin",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$nQFoYq2QDKIGD8RL4d58Q8$F71a3s5OiAkR0Pm4PTM+x3Ym+18Qcpf6ij1xIwALd+Q=",
+      "last_login": "2026-06-08T19:15:39.936Z",
+      "is_superuser": false,
+      "phone": 1234567890,
+      "name": "Admin User",
+      "job_title": "Administrator",
+      "salary": 0,
+      "manager": null,
+      "image": "",
+      "permission_group": null,
+      "is_active": true,
+      "is_staff": true,
+      "employee": null,
+      "updated": "2026-06-08T19:14:15.510Z",
+      "created": "2026-06-08T19:14:15.510Z",
+      "note": ""
+    }
+  },
+  {
+    "model": "core.admin",
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$hB1CQ4wrTVwHQVC03FjgiC$y5mk3nUUp3yd2SivHlomLhkzKpgpeDGFL3wzE/Sj9uA=",
+      "last_login": "2026-06-30T22:54:49.743Z",
+      "is_superuser": false,
+      "phone": 7874470004,
+      "name": "",
+      "job_title": "",
+      "salary": 0,
+      "manager": null,
+      "image": "",
+      "permission_group": null,
+      "is_active": true,
+      "is_staff": false,
+      "employee": null,
+      "updated": "2026-06-30T22:51:25.761Z",
+      "created": "2026-06-30T22:51:25.762Z",
+      "note": ""
+    }
+  },
+  {
+    "model": "core.language",
+    "pk": 1,
+    "fields": {
+      "name": "english",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:49:19.895Z",
+      "created": "2025-08-11T07:49:19.895Z"
+    }
+  },
+  {
+    "model": "core.specialty",
+    "pk": 1,
+    "fields": {
+      "name": "junk food",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:49:14.436Z",
+      "created": "2025-08-11T07:49:14.436Z"
+    }
+  },
+  {
+    "model": "core.carcompany",
+    "pk": 1,
+    "fields": {
+      "name": "audi",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:49:40.818Z",
+      "created": "2025-08-11T07:49:40.818Z"
+    }
+  },
+  {
+    "model": "core.carmodel",
+    "pk": 1,
+    "fields": {
+      "car_company": 1,
+      "name": "S7",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:51:12.473Z",
+      "created": "2025-08-11T07:51:12.473Z"
+    }
+  },
+  {
+    "model": "core.carcolor",
+    "pk": 1,
+    "fields": {
+      "name": "silver",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:49:47.455Z",
+      "created": "2025-08-11T07:49:47.455Z"
+    }
+  },
+  {
+    "model": "core.carcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Super Salon",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:50:03.298Z",
+      "created": "2025-08-11T07:50:03.298Z"
+    }
+  },
+  {
+    "model": "core.goodstype",
+    "pk": 1,
+    "fields": {
+      "name": "solid items",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:50:59.295Z",
+      "created": "2025-08-11T07:50:59.295Z"
+    }
+  },
+  {
+    "model": "core.carsize",
+    "pk": 1,
+    "fields": {
+      "name": "100 * 100 * 100",
+      "max_load": "200KG",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:50:24.453Z",
+      "created": "2025-08-11T07:50:24.453Z"
+    }
+  },
+  {
+    "model": "core.trailer",
+    "pk": 1,
+    "fields": {
+      "car_category": 1,
+      "car_size": 1,
+      "name": "12\" FOOT",
+      "km_price": 0,
+      "worker_prec": 0.0,
+      "weight_prec": 0.0,
+      "company_prec": 0.0,
+      "can_order_workers": true,
+      "car_hour_price": 0,
+      "worker_hour_price": 0,
+      "inner_ride_start_price": 0,
+      "outer_ride_start_price": 0,
+      "captain_prize": 0,
+      "mandob_prize": 0,
+      "late_loading_price": 0,
+      "late_loading_days": 0,
+      "late_delivering_price": 0,
+      "late_delivering_days": 0,
+      "image1": "",
+      "image2": "",
+      "image3": "",
+      "map_icon": "",
+      "order_icon": "",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:51:41.588Z",
+      "created": "2025-08-11T07:51:41.588Z",
+      "goods_type": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "core.carletter",
+    "pk": 1,
+    "fields": {
+      "name": "AA",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:51:19.890Z",
+      "created": "2025-08-11T07:51:19.890Z"
+    }
+  },
+  {
+    "model": "core.activitytype",
+    "pk": 1,
+    "fields": {
+      "name": "trading",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:49:33.774Z",
+      "created": "2025-08-11T07:49:33.774Z"
+    }
+  },
+  {
+    "model": "core.banner",
+    "pk": 1,
+    "fields": {
+      "image": "uploads/549943592_16_22.jpg",
+      "is_active": true,
+      "employee": [
+        7810086970
+      ],
+      "updated": "2025-08-16T12:04:22.316Z",
+      "created": "2025-08-16T12:04:22.316Z"
+    }
+  },
+  {
+    "model": "core.blog",
+    "pk": 1,
+    "fields": {
+      "title": "asd",
+      "body": "dasd",
+      "image": "uploads/761956914_16_55.png",
+      "is_active": true,
+      "employee": [
+        7810086970
+      ],
+      "updated": "2025-08-16T12:04:55.871Z",
+      "created": "2025-08-16T12:04:55.871Z"
+    }
+  },
+  {
+    "model": "core.info",
+    "pk": 1,
+    "fields": {
+      "whatsapp": null,
+      "facebook": null,
+      "instagram": null,
+      "tiktok": null,
+      "about": null,
+      "privacy": null,
+      "offer_time": 0,
+      "employee": null,
+      "is_active": true,
+      "updated": "2025-08-11T07:45:52.301Z",
+      "created": "2025-08-11T07:45:52.301Z"
+    }
+  },
+  {
+    "model": "deliverycompany.deliverycompany",
+    "fields": {
+      "password": "pbkdf2_sha256$600000$uR5Z2wM1910w12vFAWZsSE$kwrivp727x4LZjgfRpx+0NwIzNvcsL2jQp+GzIN/C1Q=",
+      "last_login": null,
+      "is_superuser": false,
+      "name": "zain amer",
+      "phone": 7810086970,
+      "country": 1,
+      "province": 1,
+      "city": "dora",
+      "location": "dora",
+      "specialty": 1,
+      "image": "",
+      "id_doc1": "",
+      "id_doc2": "",
+      "resident_doc1": "",
+      "resident_doc2": "",
+      "company_registration": "",
+      "company_doc1": "",
+      "company_doc2": "",
+      "company_doc3": "",
+      "company_doc4": "",
+      "company_doc5": "",
+      "barcode": "1629637226660",
+      "barcode_image": "uploads/623458752_11_58.png",
+      "latitude_base": null,
+      "longitude_base": null,
+      "latitude": null,
+      "longitude": null,
+      "device_id": null,
+      "balance": 0,
+      "pin": null,
+      "is_logged": false,
+      "id_number": null,
+      "id_issue_city": null,
+      "id_issue_date": null,
+      "id_expire_date": null,
+      "id_birth_date": null,
+      "house_id_issuer": null,
+      "house_id_house_number": null,
+      "house_id_house_street": null,
+      "house_id_house_city": null,
+      "employee": null,
+      "is_active": true,
+      "updated": "2025-08-11T07:52:58.080Z",
+      "created": "2025-08-11T07:52:58.072Z"
+    }
+  },
+  {
+    "model": "user.user",
+    "fields": {
+      "password": "pbkdf2_sha256$600000$ihHA91i7b4CIIm1aiP1ssN$UZb9r4UbsWzF6+OSYFfrMtptKxob1ZRyfOtMj4tG0+Q=",
+      "last_login": null,
+      "is_superuser": false,
+      "name": "zain amer",
+      "phone": 7810086970,
+      "language": 1,
+      "country": 1,
+      "province": 1,
+      "activity_type": null,
+      "city": "dora",
+      "location": "dora",
+      "max_debt": 0,
+      "image": "",
+      "id_doc1": "",
+      "id_doc2": "",
+      "barcode": "1802821169190",
+      "barcode_image": "uploads/761456937_11_37.png",
+      "latitude": null,
+      "longitude": null,
+      "latitude_base": null,
+      "longitude_base": null,
+      "device_id": null,
+      "type": "user",
+      "company_name": "alsahem",
+      "company_doc": "",
+      "pin": null,
+      "id_number": null,
+      "id_issue_city": null,
+      "id_issue_date": null,
+      "id_expire_date": null,
+      "id_birth_date": null,
+      "house_id_issuer": null,
+      "house_id_house_number": null,
+      "house_id_house_street": null,
+      "house_id_house_city": null,
+      "employee": null,
+      "is_active": true,
+      "updated": "2025-08-11T07:55:37.650Z",
+      "created": "2025-08-11T07:55:37.640Z",
+      "is_logged": false
+    }
+  },
+  {
+    "model": "user.usertoken",
+    "pk": "32c639d1933c5460435ee19703cf62f634a2addc",
+    "fields": {
+      "user": [
+        7810086970
+      ],
+      "created": "2025-08-11T07:55:37.651Z"
+    }
+  },
+  {
+    "model": "captain.captain",
+    "fields": {
+      "password": "pbkdf2_sha256$600000$wOkIDoujfU3h6va5nleyHf$Nvxw2k7OHPQXAqJo+CxtZy3fxRG8o1wNL6PYRA10SyE=",
+      "last_login": null,
+      "is_superuser": false,
+      "company": [
+        7810086970
+      ],
+      "car": 1,
+      "name": "zain alabdeen amer",
+      "phone": 7810086970,
+      "country": 1,
+      "province": 1,
+      "city": "dora",
+      "location": "dora",
+      "app_language": null,
+      "note": "",
+      "image": "",
+      "personal_id_doc1": "",
+      "personal_id_doc2": "",
+      "car_id_doc1": "",
+      "car_id_doc2": "",
+      "agency_doc": "",
+      "resident_doc1": "",
+      "resident_doc2": "",
+      "barcode": "4208208742517",
+      "barcode_image": "uploads/781613787_11_9.png",
+      "latitude_base": null,
+      "longitude_base": null,
+      "latitude": null,
+      "longitude": null,
+      "status": "pending",
+      "pin": null,
+      "device_id": null,
+      "is_logged": false,
+      "id_number": "12312341",
+      "id_issue_city": null,
+      "id_issue_date": null,
+      "id_expire_date": null,
+      "id_birth_date": null,
+      "house_id_issuer": null,
+      "house_id_house_number": null,
+      "house_id_house_street": null,
+      "house_id_house_city": null,
+      "driving_id_expire": null,
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-21T10:08:22.365Z",
+      "updatedtime": "13:08:22.365",
+      "created": "2025-08-11T07:52:08.940Z",
+      "languages": [
+        1
+      ]
+    }
+  },
+  {
+    "model": "captain.captain",
+    "fields": {
+      "password": "pbkdf2_sha256$600000$LMCVeWTtpxlg0yBQOXnxsp$y/7bSJt3/2DFa8LL+1zZF2u6HxCiQxBIqzDe42AHjww=",
+      "last_login": null,
+      "is_superuser": false,
+      "company": null,
+      "car": null,
+      "name": "Zain alabdeen",
+      "phone": 7810086972,
+      "country": null,
+      "province": null,
+      "city": null,
+      "location": null,
+      "app_language": null,
+      "note": null,
+      "image": "",
+      "personal_id_doc1": "",
+      "personal_id_doc2": "",
+      "car_id_doc1": "",
+      "car_id_doc2": "",
+      "agency_doc": "",
+      "resident_doc1": "",
+      "resident_doc2": "",
+      "barcode": "3140265807888",
+      "barcode_image": "uploads/582196602_21_5.png",
+      "latitude_base": null,
+      "longitude_base": null,
+      "latitude": null,
+      "longitude": null,
+      "status": "pending",
+      "pin": null,
+      "device_id": null,
+      "is_logged": false,
+      "id_number": null,
+      "id_issue_city": null,
+      "id_issue_date": null,
+      "id_expire_date": null,
+      "id_birth_date": null,
+      "house_id_issuer": null,
+      "house_id_house_number": null,
+      "house_id_house_street": null,
+      "house_id_house_city": null,
+      "driving_id_expire": null,
+      "is_active": false,
+      "employee": null,
+      "updated": "2025-08-21T10:24:06.174Z",
+      "updatedtime": "13:24:06.174",
+      "created": "2025-08-21T10:24:05.876Z",
+      "languages": []
+    }
+  },
+  {
+    "model": "captain.captain",
+    "fields": {
+      "password": "pbkdf2_sha256$600000$5QamSWBhgirX16jNnFXntc$OwJEF6pRTQ5uzaP3a7msS5rHxRbx5E8zFpWk4l2YzyM=",
+      "last_login": null,
+      "is_superuser": false,
+      "company": null,
+      "car": null,
+      "name": "Zain alabdeen",
+      "phone": 7810086231,
+      "country": null,
+      "province": null,
+      "city": null,
+      "location": null,
+      "app_language": null,
+      "note": null,
+      "image": "",
+      "personal_id_doc1": "",
+      "personal_id_doc2": "",
+      "car_id_doc1": "",
+      "car_id_doc2": "",
+      "agency_doc": "",
+      "resident_doc1": "",
+      "resident_doc2": "",
+      "barcode": "2384574385878",
+      "barcode_image": "uploads/768494351_21_5.png",
+      "latitude_base": null,
+      "longitude_base": null,
+      "latitude": null,
+      "longitude": null,
+      "status": "pending",
+      "pin": null,
+      "device_id": null,
+      "is_logged": false,
+      "id_number": null,
+      "id_issue_city": null,
+      "id_issue_date": null,
+      "id_expire_date": null,
+      "id_birth_date": null,
+      "house_id_issuer": null,
+      "house_id_house_number": null,
+      "house_id_house_street": null,
+      "house_id_house_city": null,
+      "driving_id_expire": null,
+      "is_active": false,
+      "employee": null,
+      "updated": "2025-08-21T10:25:05.646Z",
+      "updatedtime": "13:25:05.646",
+      "created": "2025-08-21T10:25:05.413Z",
+      "languages": []
+    }
+  },
+  {
+    "model": "core.notification",
+    "pk": 1,
+    "fields": {
+      "user_type": "client1",
+      "user": [
+        7810086970
+      ],
+      "company": null,
+      "captain": null,
+      "mandob": null,
+      "title": "adsasczx",
+      "text": "dasasd",
+      "is_active": true,
+      "employee": [
+        7810086970
+      ],
+      "updated": "2025-08-16T12:03:30.482Z",
+      "created": "2025-08-16T12:03:30.482Z"
+    }
+  },
+  {
+    "model": "core.prepaid",
+    "pk": 1,
+    "fields": {
+      "user_type": "client1",
+      "user": [
+        7810086970
+      ],
+      "company": null,
+      "captain": null,
+      "mandob": null,
+      "code": "12123",
+      "amount": 12312312,
+      "is_active": true,
+      "employee": [
+        7810086970
+      ],
+      "updated": "2025-08-16T12:02:37.972Z",
+      "created": "2025-08-16T12:02:37.972Z"
+    }
+  },
+  {
+    "model": "core.pay",
+    "pk": 1,
+    "fields": {
+      "user": [
+        7810086970
+      ],
+      "company": null,
+      "captain": null,
+      "mandob": null,
+      "user_type": "client1",
+      "pay_type": "get",
+      "amount": 123123,
+      "note": "adsasd",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-16T12:01:53.724Z",
+      "created": "2025-08-16T12:01:53.724Z"
+    }
+  },
+  {
+    "model": "core.car",
+    "pk": 1,
+    "fields": {
+      "captain": [
+        7810086970
+      ],
+      "company": [
+        7810086970
+      ],
+      "country": 1,
+      "province": 1,
+      "car_number": "21412",
+      "car_letter": 1,
+      "car_category": null,
+      "trailer": null,
+      "car_company": null,
+      "car_model": null,
+      "car_color": null,
+      "car_manu_year": 1901,
+      "car_doc1": "",
+      "car_doc2": "",
+      "image1": "",
+      "image2": "",
+      "image3": "",
+      "agency_doc": "",
+      "car_id_name": null,
+      "car_id_number": null,
+      "car_id_vin": null,
+      "car_id_expire": null,
+      "barcode": "2974420759818",
+      "barcode_image": "uploads/882266605_11_29.png",
+      "balance": 0,
+      "max_balance": 0,
+      "employee": null,
+      "is_active": true,
+      "updated": "2025-08-11T07:53:32.475Z",
+      "created": "2025-08-11T07:52:29.149Z"
+    }
+  },
+  {
+    "model": "core.province",
+    "pk": 1,
+    "fields": {
+      "country": 1,
+      "name": "baghdad",
+      "from_prec": 0.0,
+      "to_prec": 0.0,
+      "inner_ride_start_price": 0,
+      "outer_ride_start_price": 0,
+      "company_prec": 0.0,
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:48:53.082Z",
+      "created": "2025-08-11T07:48:53.082Z"
+    }
+  },
+  {
+    "model": "core.country",
+    "pk": 1,
+    "fields": {
+      "name": "iraq",
+      "is_active": true,
+      "employee": null,
+      "updated": "2025-08-11T07:48:44.862Z",
+      "created": "2025-08-11T07:48:44.862Z"
+    }
+  },
+  {
+    "model": "captain.captaintoken",
+    "pk": "9c426a468d69e72102bd915358f8dbcb0863ddc4",
+    "fields": {
+      "user": [
+        7810086231
+      ],
+      "created": "2025-08-21T10:25:05.425Z"
+    }
+  },
+  {
+    "model": "captain.captaintoken",
+    "pk": "e2ab9b48ea3fb1cdc5b1295a4642e97f9e01eb15",
+    "fields": {
+      "user": [
+        7810086970
+      ],
+      "created": "2025-08-11T07:52:09.005Z"
+    }
+  },
+  {
+    "model": "captain.captaintoken",
+    "pk": "e85e12e6ad6f4a6dd3e80c70b82fdd69fb4ffa30",
+    "fields": {
+      "user": [
+        7810086972
+      ],
+      "created": "2025-08-21T10:24:05.957Z"
+    }
+  },
+  {
+    "model": "captain.captainroom",
+    "pk": 1,
+    "fields": {
+      "room": [
+        7810086970
+      ],
+      "is_active": true,
+      "updated": "2025-08-16T11:51:54.806Z",
+      "created": "2025-08-16T11:51:54.806Z"
+    }
+  },
+  {
+    "model": "captain.captainmessage",
+    "pk": 1,
+    "fields": {
+      "room": 1,
+      "captain": [
+        7810086970
+      ],
+      "admin": [
+        7810086970
+      ],
+      "message": "adsczx",
+      "is_active": true,
+      "updated": "2025-08-16T11:52:02.355Z",
+      "created": "2025-08-16T11:52:02.355Z"
+    }
+  },
+  {
+    "model": "order.order",
+    "pk": 1,
+    "fields": {
+      "user": [
+        7810086970
+      ],
+      "collection_area": "المزرعة",
+      "collection_area_details": "في قلب صحراء الانبار",
+      "company": [
+        7810086970
+      ],
+      "captain": [
+        7810086970
+      ],
+      "rejection_reason": "غطرسة",
+      "loading_workers_count": 5,
+      "loading_workers_cost": 20,
+      "delivering_workers_count": 5,
+      "delivering_workers_cost": 13,
+      "distance": "300",
+      "order_type": "internal",
+      "captain_status": "سكران",
+      "client_status": "عصبي",
+      "manifest": "uploads/234375876_11_10.png",
+      "captain_doc": "uploads/72370794_11_10.png",
+      "client_doc": "uploads/906708453_11_10.png",
+      "note": "الهدف واضح",
+      "client_rating": 3,
+      "captain_rating": 5,
+      "is_active": true,
+      "employee": [
+        7810086970
+      ],
+      "updated": "2025-08-11T08:22:54.835Z",
+      "created": "2025-08-11T07:55:10.837Z"
+    }
+  },
+  {
+    "model": "order.ordercar",
+    "pk": 1,
+    "fields": {
+      "order": 1,
+      "captain": [
+        7810086970
+      ],
+      "car": 1,
+      "trailer": 1,
+      "trailer_count": 2,
+      "goods_cost": 1500,
+      "goods_count": 40,
+      "goods_details": "صناديق محكمة الغلق",
+      "goods_type": 1,
+      "before_loading_image1": "uploads/271538175_11_43.png",
+      "before_loading_image2": "uploads/974915871_11_43.png",
+      "before_loading_image3": "uploads/471461273_11_43.png",
+      "after_delivering_image1": "uploads/894156469_11_43.png",
+      "after_delivering_image2": "uploads/172042087_11_43.png",
+      "after_delivering_image3": "uploads/53909712_11_43.png",
+      "note": "لا شيئ حاليا",
+      "delivery_date": "2025-08-11",
+      "delivery_time": "02:57:00",
+      "from_country": 1,
+      "from_province": 1,
+      "from_name": "دورة",
+      "from_lat": "14.2132",
+      "from_long": "14.2132",
+      "to_country": 1,
+      "to_province": 1,
+      "to_name": "يرموك",
+      "to_lat": "14.2132",
+      "to_long": "14.2132",
+      "distance": "200",
+      "employee": [
+        7810086970
+      ],
+      "is_active": true,
+      "updated": "2025-08-11T07:57:43.152Z",
+      "created": "2025-08-11T07:57:43.152Z"
+    }
+  },
+  {
+    "model": "order.orderoffer",
+    "pk": 1,
+    "fields": {
+      "order": 1,
+      "company": [
+        7810086970
+      ],
+      "captain": [
+        7810086970
+      ],
+      "time": "10:58:03.656",
+      "price": 4500,
+      "is_active": true,
+      "updated": "2025-08-11T07:58:03.656Z",
+      "created": "2025-08-11T07:58:03.656Z"
+    }
+  }
+]

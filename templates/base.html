@@ -1022,7 +1022,7 @@
         <!-- Menu -->
         <div class="menu">
             <!-- Home -->
-                {% if request.user.is_staff == False %}
+                {% if request.user.is_authenticated %}
                                 <div class="menu-item">
                 <a href="{% url 'home' %}" class="menu-link">
                     <div class="menu-content">

@@ -435,6 +435,8 @@ def api_captain_orders(request):
     return Response(
         OrderSerializer(qs, many=True, context={"request": request}).data
     )
+
+
 @api_view(["POST"])
 @authentication_classes([])
 @permission_classes([AllowAny])
@@ -495,7 +497,9 @@ def api_captain_reject_order(request, pk):
         "detail": "Order rejected successfully",
         "order": OrderSerializer(order, context={"request": request}).data,
     })
-    @api_view(["POST"])
+
+
+@api_view(["POST"])
 @authentication_classes([])
 @permission_classes([AllowAny])
 def api_captain_update_location(request):
@@ -519,7 +523,15 @@ def api_captain_update_location(request):
     captain.latitude = latitude
     captain.longitude = longitude
     captain.is_logged = True
-    captain.save(update_fields=["latitude", "longitude", "is_logged", "updated"])
+
+    captain.save(
+        update_fields=[
+            "latitude",
+            "longitude",
+            "is_logged",
+            "updated",
+        ]
+    )
 
     return Response({
         "detail": "Captain location updated successfully",

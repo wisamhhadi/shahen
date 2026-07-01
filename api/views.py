@@ -435,4 +435,64 @@ def api_captain_orders(request):
     return Response(
         OrderSerializer(qs, many=True, context={"request": request}).data
     )
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_captain_accept_order(request, pk):
+    captain = _get_captain_from_token(request)
+
+    if captain is None:
+        return Response(
+            {"detail": "Invalid or missing captain token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    try:
+        order = Order.objects.get(pk=pk, captain=captain)
+    except Order.DoesNotExist:
+        return Response(
+            {"detail": "Order not found for this captain"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    order.captain_status = "accepted"
+    order.is_active = True
+    order.save(update_fields=["captain_status", "is_active", "updated"])
+
+    return Response({
+        "detail": "Order accepted successfully",
+        "order": OrderSerializer(order, context={"request": request}).data,
+    })
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_captain_reject_order(request, pk):
+    captain = _get_captain_from_token(request)
+
+    if captain is None:
+        return Response(
+            {"detail": "Invalid or missing captain token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    try:
+        order = Order.objects.get(pk=pk, captain=captain)
+    except Order.DoesNotExist:
+        return Response(
+            {"detail": "Order not found for this captain"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    reason = request.data.get("reason", "رفض من الكابتن")
+
+    order.captain_status = "rejected"
+    order.rejection_reason = reason
+    order.save(update_fields=["captain_status", "rejection_reason", "updated"])
+
+    return Response({
+        "detail": "Order rejected successfully",
+        "order": OrderSerializer(order, context={"request": request}).data,
+    })
     

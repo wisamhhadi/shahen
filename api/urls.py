@@ -11,8 +11,16 @@ urlpatterns = [
     path("captains/", views.api_captains, name="api_captains"),
     path("captains/<int:pk>/", views.api_captain_detail, name="api_captain_detail"),
 
-    path("delivery-companies/", views.api_delivery_companies, name="api_delivery_companies"),
-    path("delivery-companies/<int:pk>/", views.api_delivery_company_detail, name="api_delivery_company_detail"),
+    path(
+        "delivery-companies/",
+        views.api_delivery_companies,
+        name="api_delivery_companies",
+    ),
+    path(
+        "delivery-companies/<int:pk>/",
+        views.api_delivery_company_detail,
+        name="api_delivery_company_detail",
+    ),
 
     path("users/", views.api_users, name="api_users"),
     path("users/<int:pk>/", views.api_user_detail, name="api_user_detail"),
@@ -21,28 +29,31 @@ urlpatterns = [
     path("orders/<int:pk>/", views.api_order_detail, name="api_order_detail"),
 
     path("order-reports/", views.api_order_reports, name="api_order_reports"),
-    path("order-reports/<int:pk>/", views.api_order_report_detail, name="api_order_report_detail"),
+    path(
+        "order-reports/<int:pk>/",
+        views.api_order_report_detail,
+        name="api_order_report_detail",
+    ),
+
+    # Captain mobile API
     path("captain/login/", views.api_captain_login, name="api_captain_login"),
     path("captain/me/", views.api_captain_me, name="api_captain_me"),
     path("captain/orders/", views.api_captain_orders, name="api_captain_orders"),
+
     path(
-    "captain/orders/<int:pk>/accept/",
-    views.api_captain_accept_order,
-    name="api_captain_accept_order",
-),
-path(
-    "captain/orders/<int:pk>/reject/",
-    views.api_captain_reject_order,
-    name="api_captain_reject_order",
-),
-path(
-    "captain/orders/<int:pk>/accept/",
-    views.api_captain_accept_order,
-    name="api_captain_accept_order",
-),
-path(
-    "captain/orders/<int:pk>/reject/",
-    views.api_captain_reject_order,
-    name="api_captain_reject_order",
-),
+        "captain/orders/<int:pk>/accept/",
+        views.api_captain_accept_order,
+        name="api_captain_accept_order",
+    ),
+    path(
+        "captain/orders/<int:pk>/reject/",
+        views.api_captain_reject_order,
+        name="api_captain_reject_order",
+    ),
+
+    path(
+        "captain/location/",
+        views.api_captain_update_location,
+        name="api_captain_update_location",
+    ),
 ]

@@ -495,4 +495,34 @@ def api_captain_reject_order(request, pk):
         "detail": "Order rejected successfully",
         "order": OrderSerializer(order, context={"request": request}).data,
     })
+    @api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_captain_update_location(request):
+    captain = _get_captain_from_token(request)
+
+    if captain is None:
+        return Response(
+            {"detail": "Invalid or missing captain token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    latitude = request.data.get("latitude")
+    longitude = request.data.get("longitude")
+
+    if latitude is None or longitude is None:
+        return Response(
+            {"detail": "latitude and longitude are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    captain.latitude = latitude
+    captain.longitude = longitude
+    captain.is_logged = True
+    captain.save(update_fields=["latitude", "longitude", "is_logged", "updated"])
+
+    return Response({
+        "detail": "Captain location updated successfully",
+        "captain": CaptainSerializer(captain, context={"request": request}).data,
+    })
     

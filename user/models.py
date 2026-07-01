@@ -15,7 +15,7 @@ CLIENT_TYPE = (
 
 class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(_("الاسم"), max_length=200)
-    phone = models.IntegerField(_("الهاتف"), unique=True)
+    phone = models.CharField(_("الهاتف"), max_length=20, unique=True)
     language = models.ForeignKey('core.Language', on_delete=models.SET_NULL, null=True, blank=True,
                                  verbose_name=_("اللغة"), )
     country = models.ForeignKey('core.Country', on_delete=models.SET_NULL, null=True, blank=True,

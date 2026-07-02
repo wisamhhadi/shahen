@@ -30,7 +30,7 @@ from .serializers import (
     OrderSerializer,
     OrderReportSerializer,
 )
-
+MANDOB_TOKEN_SALT = "mandob-mobile-token"
 User = get_user_model()
 
 

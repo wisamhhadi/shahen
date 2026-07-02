@@ -1,3 +1,8 @@
+from django.contrib.auth.hashers import check_password
+from django.core import signing
+
+from mandob.models import Mandob
+from .serializers import MandobSerializer
 import secrets
 from django.core import signing
 from django.contrib.auth import authenticate, get_user_model
@@ -552,13 +557,22 @@ def _make_mandob_token(mandob):
 
 
 def _check_mandob_password(mandob, raw_password):
+    stored_password = str(getattr(mandob, "password", "") or "")
+
     if hasattr(mandob, "check_password"):
-        return mandob.check_password(raw_password)
+        try:
+            if mandob.check_password(raw_password):
+                return True
+        except Exception:
+            pass
 
     try:
-        return check_password(raw_password, mandob.password)
+        if check_password(raw_password, stored_password):
+            return True
     except Exception:
-        return mandob.password == raw_password
+        pass
+
+    return stored_password == str(raw_password)
 
 
 def _get_mandob_by_phone(phone):

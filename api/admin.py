@@ -85,6 +85,27 @@ def get_list_filter(model):
     return result[:8]
 
 
+def get_ordering(model):
+    model_fields = {
+        field.name
+        for field in model._meta.fields
+    }
+
+    if "id" in model_fields:
+        return ("-id",)
+
+    if "created" in model_fields:
+        return ("-created",)
+
+    if "updated" in model_fields:
+        return ("-updated",)
+
+    if model._meta.pk:
+        return (model._meta.pk.name,)
+
+    return ()
+
+
 def create_admin_class(model):
     return type(
         f"{model.__name__}Admin",
@@ -93,7 +114,7 @@ def create_admin_class(model):
             "list_display": get_list_display(model),
             "search_fields": get_search_fields(model),
             "list_filter": get_list_filter(model),
-            "ordering": ("-id",),
+            "ordering": get_ordering(model),
             "list_per_page": 50,
         },
     )

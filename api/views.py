@@ -680,11 +680,11 @@ def api_mandob_login(request):
         )
 
     if hasattr(mandob, "is_logged"):
-        mandob.is_logged = True
-        try:
-            mandob.save(update_fields=["is_logged"])
-        except Exception:
-            mandob.save()
+        mandob.is_logged = False
+    try:
+        mandob.save(update_fields=["is_logged"])
+    except Exception:
+        mandob.save()
 
     token = _make_mandob_token(mandob)
 

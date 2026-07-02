@@ -1,5 +1,5 @@
 import secrets
-
+from django.core import signing
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import check_password
 from django.db.models import Q
@@ -537,4 +537,273 @@ def api_captain_update_location(request):
         "detail": "Captain location updated successfully",
         "captain": CaptainSerializer(captain, context={"request": request}).data,
     })
+    
+    MANDOB_TOKEN_SALT = "mandob-mobile-token"
+
+
+def _make_mandob_token(mandob):
+    return signing.dumps(
+        {
+            "type": "mandob",
+            "id": mandob.id,
+        },
+        salt=MANDOB_TOKEN_SALT,
+    )
+
+
+def _check_mandob_password(mandob, raw_password):
+    if hasattr(mandob, "check_password"):
+        return mandob.check_password(raw_password)
+
+    try:
+        return check_password(raw_password, mandob.password)
+    except Exception:
+        return mandob.password == raw_password
+
+
+def _get_mandob_by_phone(phone):
+    phone_text = str(phone).strip()
+    digits = "".join(ch for ch in phone_text if ch.isdigit())
+
+    candidates = [digits]
+
+    if digits.startswith("0"):
+        candidates.append(digits[1:])
+
+    for item in candidates:
+        if not item:
+            continue
+
+        try:
+            return Mandob.objects.get(phone=int(item))
+        except Mandob.DoesNotExist:
+            continue
+        except ValueError:
+            continue
+
+        try:
+            return Mandob.objects.get(phone=item)
+        except Mandob.DoesNotExist:
+            continue
+
+    return None
+
+
+def _get_mandob_from_token(request):
+    auth_header = (
+        request.META.get("HTTP_AUTHORIZATION")
+        or request.headers.get("Authorization")
+        or ""
+    ).strip()
+
+    token = ""
+
+    if auth_header:
+        parts = auth_header.split()
+
+        if len(parts) == 2 and parts[0].lower() in [
+            "token",
+            "bearer",
+            "mandobtoken",
+        ]:
+            token = parts[1].strip()
+        else:
+            token = (
+                auth_header
+                .replace("MandobToken", "")
+                .replace("Bearer", "")
+                .replace("Token", "")
+                .strip()
+            )
+
+    if not token:
+        token = request.GET.get("token", "").strip()
+
+    if not token:
+        return None
+
+    try:
+        data = signing.loads(
+            token,
+            salt=MANDOB_TOKEN_SALT,
+            max_age=60 * 60 * 24 * 365,
+        )
+
+        if data.get("type") != "mandob":
+            return None
+
+        return Mandob.objects.get(pk=data.get("id"))
+
+    except Exception:
+        return None
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_mandob_login(request):
+    phone = request.data.get("phone")
+    password = request.data.get("password")
+
+    if not phone or not password:
+        return Response(
+            {"detail": "phone and password are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    mandob = _get_mandob_by_phone(phone)
+
+    if mandob is None:
+        return Response(
+            {"detail": "Invalid phone or password"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    if not _check_mandob_password(mandob, password):
+        return Response(
+            {"detail": "Invalid phone or password"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    if hasattr(mandob, "is_logged"):
+        mandob.is_logged = True
+        try:
+            mandob.save(update_fields=["is_logged"])
+        except Exception:
+            mandob.save()
+
+    token = _make_mandob_token(mandob)
+
+    return Response({
+        "id": mandob.id,
+        "token": token,
+        "mandob": MandobSerializer(
+            mandob,
+            context={"request": request},
+        ).data,
+    })
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_mandob_me(request):
+    mandob = _get_mandob_from_token(request)
+
+    if mandob is None:
+        return Response(
+            {"detail": "Invalid or missing mandob token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    return Response({
+        "mandob": MandobSerializer(
+            mandob,
+            context={"request": request},
+        ).data,
+    })
+
+
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_mandob_update_location(request):
+    mandob = _get_mandob_from_token(request)
+
+    if mandob is None:
+        return Response(
+            {"detail": "Invalid or missing mandob token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    latitude = request.data.get("latitude")
+    longitude = request.data.get("longitude")
+
+    if latitude is None or longitude is None:
+        return Response(
+            {"detail": "latitude and longitude are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    mandob.latitude = latitude
+    mandob.longitude = longitude
+
+    if hasattr(mandob, "is_logged"):
+        mandob.is_logged = True
+
+    update_fields = ["latitude", "longitude"]
+
+    if hasattr(mandob, "is_logged"):
+        update_fields.append("is_logged")
+
+    if hasattr(mandob, "updated"):
+        update_fields.append("updated")
+
+    try:
+        mandob.save(update_fields=update_fields)
+    except Exception:
+        mandob.save()
+
+    return Response({
+        "detail": "Mandob location updated successfully",
+        "mandob": MandobSerializer(
+            mandob,
+            context={"request": request},
+        ).data,
+    })
+
+
+@api_view(["GET", "PATCH"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def api_mandob_mobile_detail(request, pk):
+    try:
+        mandob = Mandob.objects.get(pk=pk)
+    except Mandob.DoesNotExist:
+        return Response(
+            {"detail": "Mandob not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == "GET":
+        return Response(
+            MandobSerializer(
+                mandob,
+                context={"request": request},
+            ).data
+        )
+
+    allowed_fields = [
+        "is_logged",
+        "isfree",
+        "latitude",
+        "longitude",
+        "latitude2",
+        "longitude2",
+        "location",
+        "city",
+    ]
+
+    changed_fields = []
+
+    for field in allowed_fields:
+        if field in request.data and hasattr(mandob, field):
+            setattr(mandob, field, request.data.get(field))
+            changed_fields.append(field)
+
+    if hasattr(mandob, "updated"):
+        changed_fields.append("updated")
+
+    if changed_fields:
+        try:
+            mandob.save(update_fields=changed_fields)
+        except Exception:
+            mandob.save()
+
+    return Response(
+        MandobSerializer(
+            mandob,
+            context={"request": request},
+        ).data
+    )
     

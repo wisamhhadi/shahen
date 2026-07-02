@@ -6,7 +6,11 @@ urlpatterns = [
     path("me/", views.api_me, name="api_me"),
 
     path("mandobs/", views.api_mandobs, name="api_mandobs"),
-    path("mandobs/<int:pk>/", views.api_mandob_detail, name="api_mandob_detail"),
+    path(
+    "mandobs/<int:pk>/",
+    views.api_mandob_mobile_detail,
+    name="api_mandob_mobile_detail",
+),
 
     path("captains/", views.api_captains, name="api_captains"),
     path("captains/<int:pk>/", views.api_captain_detail, name="api_captain_detail"),
@@ -56,4 +60,11 @@ urlpatterns = [
         views.api_captain_update_location,
         name="api_captain_update_location",
     ),
+    path("mandob/login/", views.api_mandob_login, name="api_mandob_login"),
+path("mandob/me/", views.api_mandob_me, name="api_mandob_me"),
+path(
+    "mandob/location/",
+    views.api_mandob_update_location,
+    name="api_mandob_update_location",
+),
 ]

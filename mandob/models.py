@@ -89,14 +89,15 @@ class Mandob(AbstractBaseUser, PermissionsMixin):
     updatedtime = models.TimeField(_("وقت اخر تحديث"), auto_now=True)
     created = models.DateTimeField(_("تاريخ الانشاء"), auto_now_add=True)
 
-    user_permissions = None
+        user_permissions = None
     groups = None
     first_name = None
     last_name = None
+
     is_logged = models.BooleanField(_("Is Logged"), default=False)
     device_id = models.CharField(_("Device ID"), max_length=255, null=True, blank=True)
 
-        USERNAME_FIELD = 'phone'
+    USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
 
     objects = UserManager()

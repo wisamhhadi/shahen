@@ -26,15 +26,25 @@ class Migration(migrations.Migration):
             ],
         ),
 
-        migrations.AddField(
-            model_name='car',
-            name='agency_doc',
-            field=models.FileField(
-                blank=True,
-                null=True,
-                upload_to=extra.content_file_name,
-                verbose_name='الوكالة',
-            ),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunSQL(
+                    sql="ALTER TABLE core_car ADD COLUMN IF NOT EXISTS agency_doc varchar(100);",
+                    reverse_sql=migrations.RunSQL.noop,
+                ),
+            ],
+            state_operations=[
+                migrations.AddField(
+                    model_name='car',
+                    name='agency_doc',
+                    field=models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to=extra.content_file_name,
+                        verbose_name='الوكالة',
+                    ),
+                ),
+            ],
         ),
 
         migrations.AlterField(

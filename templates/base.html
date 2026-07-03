@@ -1022,7 +1022,7 @@
         <!-- Menu -->
         <div class="menu">
             <!-- Home -->
-                {% if request.user.is_authenticated %}
+                {% if request.user.is_authenticated or request.user.is_superuser or request.user.is_staff %}
                                 <div class="menu-item">
                 <a href="{% url 'home' %}" class="menu-link">
                     <div class="menu-content">
@@ -1460,7 +1460,7 @@
     <!-- Main Content -->
     <main class="main-content">
     <div class="floating-toolbar">
-    {% if request.user.is_staff == False %}
+{% if request.user.is_authenticated %}
         <!-- Admin quick access icons -->
         <a href="{% url 'create_mandob' %}" class="toolbar-icon" title="مندوب جديد">
             <i class="fas fa-plus"></i>

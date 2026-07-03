@@ -11,18 +11,40 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='car',
-            name='car_id_issue',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunSQL(
+                    sql="ALTER TABLE core_car DROP COLUMN IF EXISTS car_id_issue CASCADE;",
+                    reverse_sql=migrations.RunSQL.noop,
+                ),
+            ],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='car',
+                    name='car_id_issue',
+                ),
+            ],
         ),
+
         migrations.AddField(
             model_name='car',
             name='agency_doc',
-            field=models.FileField(blank=True, null=True, upload_to=extra.content_file_name, verbose_name='الوكالة'),
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to=extra.content_file_name,
+                verbose_name='الوكالة',
+            ),
         ),
+
         migrations.AlterField(
             model_name='car',
             name='car_id_name',
-            field=models.CharField(blank=True, max_length=200, null=True, verbose_name='اسم صاحب السنوية'),
+            field=models.CharField(
+                blank=True,
+                max_length=200,
+                null=True,
+                verbose_name='اسم صاحب السنوية',
+            ),
         ),
     ]

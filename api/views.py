@@ -34,6 +34,45 @@ MANDOB_TOKEN_SALT = "mandob-mobile-token"
 User = get_user_model()
 
 
+def _format_time_for_api(value):
+    """
+    Convert Django TimeField values to a stable string for Flutter.
+
+    Example:
+        datetime.time(22, 52) -> "22:52:00"
+    """
+    if value is None:
+        return None
+
+    try:
+        return value.strftime("%H:%M:%S")
+    except Exception:
+        return str(value)
+
+
+def mandob_api_data(mandob, request):
+    """
+    Unified Mandob response for the mobile app.
+
+    مهم:
+    تطبيق Flutter يعتمد على shift_start و shift_stop.
+    لذلك نضيفهما صراحة حتى لو تغيّر serializer أو route wrapper.
+    """
+    data = dict(MandobSerializer(mandob, context={"request": request}).data)
+
+    data["shift_start"] = _format_time_for_api(getattr(mandob, "shift_start", None))
+    data["shift_stop"] = _format_time_for_api(getattr(mandob, "shift_stop", None))
+
+    # Keep both names because older Flutter code used isfree in some places.
+    data["is_free"] = getattr(mandob, "is_free", data.get("is_free", False))
+    data["isfree"] = data["is_free"]
+
+    data["late_hour"] = getattr(mandob, "late_hour", data.get("late_hour", 0))
+    data["late_cost"] = getattr(mandob, "late_cost", data.get("late_cost", 0))
+
+    return data
+
+
 def limit_queryset(request, qs, default=100, max_limit=500):
     try:
         limit = int(request.GET.get("limit", default))
@@ -102,9 +141,10 @@ def api_mandobs(request):
         )
 
     qs = limit_queryset(request, qs)
-    return Response(
-        MandobSerializer(qs, many=True, context={"request": request}).data
-    )
+    return Response([
+        mandob_api_data(obj, request)
+        for obj in qs
+    ])
 
 
 @api_view(["GET"])
@@ -115,7 +155,7 @@ def api_mandob_detail(request, pk):
     except Mandob.DoesNotExist:
         return Response({"detail": "Mandob not found"}, status=404)
 
-    return Response(MandobSerializer(obj, context={"request": request}).data)
+    return Response(mandob_api_data(obj, request))
 
 
 @api_view(["GET"])
@@ -685,16 +725,14 @@ def api_mandob_login(request):
         mandob.save(update_fields=["is_logged"])
     except Exception:
         mandob.save()
+        
 
     token = _make_mandob_token(mandob)
 
     return Response({
         "id": mandob.id,
         "token": token,
-        "mandob": MandobSerializer(
-            mandob,
-            context={"request": request},
-        ).data,
+        "mandob": mandob_api_data(mandob, request),
     })
 
 
@@ -711,10 +749,7 @@ def api_mandob_me(request):
         )
 
     return Response({
-        "mandob": MandobSerializer(
-            mandob,
-            context={"request": request},
-        ).data,
+        "mandob": mandob_api_data(mandob, request),
     })
 
 
@@ -760,10 +795,7 @@ def api_mandob_update_location(request):
 
     return Response({
         "detail": "Mandob location updated successfully",
-        "mandob": MandobSerializer(
-            mandob,
-            context={"request": request},
-        ).data,
+        "mandob": mandob_api_data(mandob, request),
     })
 
 
@@ -780,12 +812,7 @@ def api_mandob_mobile_detail(request, pk):
         )
 
     if request.method == "GET":
-        return Response(
-            MandobSerializer(
-                mandob,
-                context={"request": request},
-            ).data
-        )
+        return Response(mandob_api_data(mandob, request))
 
     allowed_fields = [
         "is_logged",
@@ -814,10 +841,5 @@ def api_mandob_mobile_detail(request, pk):
         except Exception:
             mandob.save()
 
-    return Response(
-        MandobSerializer(
-            mandob,
-            context={"request": request},
-        ).data
-    )
+    return Response(mandob_api_data(mandob, request))
     

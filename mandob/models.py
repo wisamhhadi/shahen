@@ -96,10 +96,28 @@ class Mandob(AbstractBaseUser, PermissionsMixin):
     is_logged = models.BooleanField(_("Is Logged"), default=False)
     device_id = models.CharField(_("Device ID"), max_length=255, null=True, blank=True)
 
-    USERNAME_FIELD = 'phone'
+        USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        """
+        ربط زر التفعيل is_active مع حالة المندوب status.
+
+        إذا كان زر فعال مفعّل:
+            is_active=True  -> status='accepted'
+
+        إذا كان زر فعال مغلق:
+            is_active=False -> status='pending'
+        """
+
+        if self.is_active:
+            self.status = "accepted"
+        else:
+            self.status = "pending"
+
+        super().save(*args, **kwargs)
 
     class Meta:
         default_permissions = ()

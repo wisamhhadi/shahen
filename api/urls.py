@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import transporters_api
 
 urlpatterns = [
     path("login/", views.api_login, name="api_login"),
@@ -67,4 +68,17 @@ path(
     views.api_mandob_update_location,
     name="api_mandob_update_location",
 ),
+
+    # Transporter mobile API
+    path("transporters/login/", transporters_api.transporter_login, name="transporter_login"),
+    path("transporters/me/", transporters_api.transporter_me, name="transporter_me"),
+    path("transporters/stats/", transporters_api.transporter_stats, name="transporter_stats"),
+    path("transporters/drivers/", transporters_api.transporter_drivers, name="transporter_drivers"),
+    path("transporters/vehicles/", transporters_api.transporter_vehicles, name="transporter_vehicles"),
+    path("transporters/orders/", transporters_api.transporter_orders, name="transporter_orders"),
+    path("transporters/orders/<int:pk>/assign/", transporters_api.transporter_assign_order, name="transporter_assign_order"),
+    path("transporters/wallet/", transporters_api.transporter_wallet, name="transporter_wallet"),
+    path("transporters/notifications/send/", transporters_api.transporter_send_notification, name="transporter_send_notification"),
+    path("transporters/logout/", transporters_api.transporter_logout, name="transporter_logout"),
+
 ]

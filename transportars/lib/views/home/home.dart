@@ -8,10 +8,10 @@ import '../../services/network.dart';
 import '../../services/storage.dart';
 import '../../widgets/stat_card.dart';
 import '../drivers/drivers_page.dart';
-import '../orders/orders_page.dart';
 import '../vehicles/vehicles_page.dart';
-import '../wallet/wallet_page.dart';
+import '../orders/orders_page.dart';
 import '../support/support_page.dart';
+import 'map_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,109 +21,218 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final net = Network();
+  final Network net = Network();
+
   bool loading = true;
   Transporter? transporter;
-  TransporterStats? stats;
+  Stats? stats;
 
   @override
   void initState() {
     super.initState();
-    load();
+    loadDashboard();
   }
 
-  Future<void> load() async {
+  Future<void> loadDashboard() async {
     setState(() => loading = true);
 
     try {
       final data = await net.getMap(Links.me);
-      transporter = Transporter.fromJson(Map<String, dynamic>.from(data["transporter"] ?? {}));
-      stats = TransporterStats.fromJson(Map<String, dynamic>.from(data["stats"] ?? {}));
+
+      transporter = Transporter.fromJson(
+        Map<String, dynamic>.from(data['transporter'] ?? {}),
+      );
+
+      stats = Stats.fromJson(
+        Map<String, dynamic>.from(data['stats'] ?? {}),
+      );
     } catch (e) {
-      Get.snackbar("خطأ", "تعذر تحميل لوحة الناقل: $e");
+      Get.snackbar(
+        "خطأ",
+        "تعذر تحميل بيانات الناقل: $e",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
   Future<void> logout() async {
-    try {
-      await net.postMap(Links.logout, {});
-    } catch (_) {}
     await AppStorage.clear();
     Get.offAllNamed('/login');
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = stats;
+    final Stats? s = stats;
 
-    return Directionality(textDirection: TextDirection.rtl, child: Scaffold(
-      appBar: AppBar(
-        title: Text(transporter?.name ?? "لوحة الناقل"),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF1E9B4B),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(onPressed: load, icon: const Icon(Icons.refresh)),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF1E9B4B)),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                CircleAvatar(radius: 32, backgroundColor: Colors.white, child: Icon(Icons.local_shipping, color: Color(0xFF1E9B4B), size: 34)),
-                SizedBox(height: 10),
-                Text("شحنكو - الناقلين", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 19)),
-              ]),
-            ),
-            ListTile(leading: const Icon(Icons.home), title: const Text("الرئيسية"), onTap: () => Get.back()),
-            ListTile(leading: const Icon(Icons.groups), title: const Text("السائقين"), onTap: () => Get.to(() => const DriversPage())),
-            ListTile(leading: const Icon(Icons.local_shipping), title: const Text("المركبات"), onTap: () => Get.to(() => const VehiclesPage())),
-            ListTile(leading: const Icon(Icons.inventory_2), title: const Text("الطلبات"), onTap: () => Get.to(() => const OrdersPage())),
-            ListTile(leading: const Icon(Icons.account_balance_wallet), title: const Text("المحفظة"), onTap: () => Get.to(() => const WalletPage())),
-            ListTile(leading: const Icon(Icons.support_agent), title: const Text("الدعم الفني"), onTap: () => Get.to(() => const SupportPage())),
-            ListTile(leading: const Icon(Icons.logout), title: const Text("تسجيل خروج"), onTap: logout),
-          ],
-        ),
-      ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: load,
-              child: ListView(padding: const EdgeInsets.all(14), children: [
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        endDrawer: Drawer(
+          child: SafeArea(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
                 Container(
-                  height: 210,
-                  decoration: BoxDecoration(color: const Color(0xFFEAF5EE), borderRadius: BorderRadius.circular(22)),
-                  child: const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(Icons.map, size: 72, color: Color(0xFF1E9B4B)),
-                    SizedBox(height: 8),
-                    Text("خريطة السائقين والرحلات", style: TextStyle(fontWeight: FontWeight.bold)),
-                  ])),
+                  padding: const EdgeInsets.all(20),
+                  color: const Color(0xFF1E9B4B),
+                  child: Column(
+                    children: [
+                      const CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.local_shipping,
+                          color: Color(0xFF1E9B4B),
+                          size: 38,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        transporter?.name ?? "الناقل",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        transporter?.phone ?? "",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 14),
-                GridView.count(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.35,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text("حسابي"),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: const Icon(Icons.local_shipping),
+                  title: const Text("المركبات"),
+                  onTap: () => Get.to(() => const VehiclesPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.groups),
+                  title: const Text("السائقين"),
+                  onTap: () => Get.to(() => const DriversPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.inventory_2),
+                  title: const Text("الطلبات"),
+                  onTap: () => Get.to(() => const OrdersPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.support_agent),
+                  title: const Text("الدعم الفني"),
+                  onTap: () => Get.to(() => const SupportPage()),
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text("تسجيل خروج"),
+                  onTap: logout,
+                ),
+              ],
+            ),
+          ),
+        ),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF1E9B4B),
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          title: Text(transporter?.name ?? "لوحة الناقل"),
+          leading: IconButton(
+            onPressed: loadDashboard,
+            icon: const Icon(Icons.refresh),
+          ),
+        ),
+        body: loading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: loadDashboard,
+                child: ListView(
+                  padding: const EdgeInsets.all(14),
                   children: [
-                    StatCard(title: "عدد السائقين", value: "${s?.driversCount ?? 0}", icon: Icons.groups, onTap: () => Get.to(() => const DriversPage())),
-                    StatCard(title: "عدد المركبات", value: "${s?.vehiclesCount ?? 0}", icon: Icons.local_shipping, onTap: () => Get.to(() => const VehiclesPage())),
-                    StatCard(title: "إجمالي الشحنات", value: "${s?.ordersCount ?? 0}", icon: Icons.inventory_2, onTap: () => Get.to(() => const OrdersPage())),
-                    StatCard(title: "مركبات ملتزمة", value: "${s?.committedVehiclesCount ?? 0}", icon: Icons.task_alt),
-                    StatCard(title: "رحلات مكتملة", value: "${s?.completedOrdersCount ?? 0}", icon: Icons.done_all),
-                    StatCard(title: "رحلات مرفوضة", value: "${s?.rejectedOrdersCount ?? 0}", icon: Icons.cancel, color: Colors.redAccent),
-                    StatCard(title: "سائقون بحاجة مساعدة", value: "${s?.driversNeedHelpCount ?? 0}", icon: Icons.support_agent, color: Colors.orange),
-                    StatCard(title: "مركبات قيد الصيانة", value: "${s?.maintenanceVehiclesCount ?? 0}", icon: Icons.build, color: Colors.blueGrey),
+                    SizedBox(
+                      height: 260,
+                      child: TransporterMapScreen(
+                        transporter: transporter,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.25,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      children: [
+                        StatCard(
+                          title: "عدد السائقين",
+                          value: "${s?.drivers ?? 0}",
+                          icon: Icons.groups,
+                          onTap: () => Get.to(() => const DriversPage()),
+                        ),
+                        StatCard(
+                          title: "عدد المركبات",
+                          value: "${s?.vehicles ?? 0}",
+                          icon: Icons.local_shipping,
+                          onTap: () => Get.to(() => const VehiclesPage()),
+                        ),
+                        StatCard(
+                          title: "إجمالي الشحنات",
+                          value: "${s?.orders ?? 0}",
+                          icon: Icons.inventory_2,
+                          onTap: () => Get.to(() => const OrdersPage()),
+                        ),
+                        StatCard(
+                          title: "مركبات ملتزمة",
+                          value: "${s?.committed ?? 0}",
+                          icon: Icons.task_alt,
+                        ),
+                        StatCard(
+                          title: "رحلات مكتملة",
+                          value: "${s?.activeOrders ?? 0}",
+                          icon: Icons.done_all,
+                        ),
+                        StatCard(
+                          title: "سائقون بحاجة مساعدة",
+                          value: "${s?.help ?? 0}",
+                          icon: Icons.support_agent,
+                        ),
+                        StatCard(
+                          title: "مركبات قيد الصيانة",
+                          value: "${s?.maintenance ?? 0}",
+                          icon: Icons.build,
+                        ),
+                        StatCard(
+                          title: "سائقون متوقفون",
+                          value: "${s?.stopped ?? 0}",
+                          icon: Icons.timer_off,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    ElevatedButton.icon(
+                      onPressed: () => Get.to(() => const OrdersPage()),
+                      icon: const Icon(Icons.assignment),
+                      label: const Text("إدارة الطلبات وتوزيعها"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E9B4B),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(52),
+                      ),
+                    ),
                   ],
                 ),
-              ]),
-            ),
-    ));
+              ),
+      ),
+    );
   }
 }

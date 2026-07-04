@@ -5,9 +5,19 @@ class SupportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Directionality(textDirection: TextDirection.rtl, child: Scaffold(
-      appBar: AppBar(title: Text("الدعم الفني")),
-      body: Center(child: Text("صفحة الدعم الفني - V1")),
-    ));
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("الدعم الفني"),
+          backgroundColor: const Color(0xFF1E9B4B),
+          foregroundColor: Colors.white,
+          centerTitle: true,
+        ),
+        body: const Center(
+          child: Text("صفحة الدعم الفني - V1", style: TextStyle(fontSize: 18)),
+        ),
+      ),
+    );
   }
 }

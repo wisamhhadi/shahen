@@ -2,20 +2,25 @@ from django.urls import path
 from . import views
 from . import transporters_api
 
+
 urlpatterns = [
+    # General API
     path("login/", views.api_login, name="api_login"),
     path("me/", views.api_me, name="api_me"),
 
+    # Mandobs general API
     path("mandobs/", views.api_mandobs, name="api_mandobs"),
     path(
-    "mandobs/<int:pk>/",
-    views.api_mandob_mobile_detail,
-    name="api_mandob_mobile_detail",
-),
+        "mandobs/<int:pk>/",
+        views.api_mandob_mobile_detail,
+        name="api_mandob_mobile_detail",
+    ),
 
+    # Captains general API
     path("captains/", views.api_captains, name="api_captains"),
     path("captains/<int:pk>/", views.api_captain_detail, name="api_captain_detail"),
 
+    # Delivery companies general API
     path(
         "delivery-companies/",
         views.api_delivery_companies,
@@ -27,12 +32,15 @@ urlpatterns = [
         name="api_delivery_company_detail",
     ),
 
+    # Users API
     path("users/", views.api_users, name="api_users"),
     path("users/<int:pk>/", views.api_user_detail, name="api_user_detail"),
 
+    # Orders API
     path("orders/", views.api_orders, name="api_orders"),
     path("orders/<int:pk>/", views.api_order_detail, name="api_order_detail"),
 
+    # Order reports API
     path("order-reports/", views.api_order_reports, name="api_order_reports"),
     path(
         "order-reports/<int:pk>/",
@@ -55,30 +63,83 @@ urlpatterns = [
         views.api_captain_reject_order,
         name="api_captain_reject_order",
     ),
-
     path(
         "captain/location/",
         views.api_captain_update_location,
         name="api_captain_update_location",
     ),
+
+    # Mandob mobile API
     path("mandob/login/", views.api_mandob_login, name="api_mandob_login"),
-path("mandob/me/", views.api_mandob_me, name="api_mandob_me"),
-path(
-    "mandob/location/",
-    views.api_mandob_update_location,
-    name="api_mandob_update_location",
-),
+    path("mandob/me/", views.api_mandob_me, name="api_mandob_me"),
+    path(
+        "mandob/location/",
+        views.api_mandob_update_location,
+        name="api_mandob_update_location",
+    ),
 
     # Transporter mobile API
-    path("transporters/login/", transporters_api.transporter_login, name="transporter_login"),
-    path("transporters/me/", transporters_api.transporter_me, name="transporter_me"),
-    path("transporters/stats/", transporters_api.transporter_stats, name="transporter_stats"),
-    path("transporters/drivers/", transporters_api.transporter_drivers, name="transporter_drivers"),
-    path("transporters/vehicles/", transporters_api.transporter_vehicles, name="transporter_vehicles"),
-    path("transporters/orders/", transporters_api.transporter_orders, name="transporter_orders"),
-    path("transporters/orders/<int:pk>/assign/", transporters_api.transporter_assign_order, name="transporter_assign_order"),
-    path("transporters/wallet/", transporters_api.transporter_wallet, name="transporter_wallet"),
-    path("transporters/notifications/send/", transporters_api.transporter_send_notification, name="transporter_send_notification"),
-    path("transporters/logout/", transporters_api.transporter_logout, name="transporter_logout"),
+    path(
+        "transporters/login/",
+        transporters_api.transporter_login,
+        name="transporter_login",
+    ),
+    path(
+        "transporters/me/",
+        transporters_api.transporter_me,
+        name="transporter_me",
+    ),
+    path(
+        "transporters/stats/",
+        transporters_api.transporter_stats,
+        name="transporter_stats",
+    ),
 
+    # Transporter drivers
+    path(
+        "transporters/drivers/",
+        transporters_api.transporter_drivers,
+        name="transporter_drivers",
+    ),
+    path(
+        "transporters/drivers/create/",
+        transporters_api.transporter_create_driver,
+        name="transporter_create_driver",
+    ),
+
+    # Transporter vehicles
+    path(
+        "transporters/vehicles/",
+        transporters_api.transporter_vehicles,
+        name="transporter_vehicles",
+    ),
+    path(
+        "transporters/vehicles/create/",
+        transporters_api.transporter_create_vehicle,
+        name="transporter_create_vehicle",
+    ),
+
+    # Transporter orders
+    path(
+        "transporters/orders/",
+        transporters_api.transporter_orders,
+        name="transporter_orders",
+    ),
+    path(
+        "transporters/orders/<int:pk>/assign/",
+        transporters_api.transporter_assign_order,
+        name="transporter_assign_order",
+    ),
+
+    # Transporter wallet / notifications
+    path(
+        "transporters/wallet/",
+        transporters_api.transporter_wallet,
+        name="transporter_wallet",
+    ),
+    path(
+        "transporters/notifications/send/",
+        transporters_api.transporter_send_notification,
+        name="transporter_send_notification",
+    ),
 ]

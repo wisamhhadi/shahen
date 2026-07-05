@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import transporters_api
+from . import notifications_api
 
 
 urlpatterns = [
@@ -52,7 +53,6 @@ urlpatterns = [
     path("captain/login/", views.api_captain_login, name="api_captain_login"),
     path("captain/me/", views.api_captain_me, name="api_captain_me"),
     path("captain/orders/", views.api_captain_orders, name="api_captain_orders"),
-
     path(
         "captain/orders/<int:pk>/accept/",
         views.api_captain_accept_order,
@@ -79,67 +79,43 @@ urlpatterns = [
     ),
 
     # Transporter mobile API
-    path(
-        "transporters/login/",
-        transporters_api.transporter_login,
-        name="transporter_login",
-    ),
-    path(
-        "transporters/me/",
-        transporters_api.transporter_me,
-        name="transporter_me",
-    ),
-    path(
-        "transporters/stats/",
-        transporters_api.transporter_stats,
-        name="transporter_stats",
-    ),
+    path("transporters/login/", transporters_api.transporter_login, name="transporter_login"),
+    path("transporters/me/", transporters_api.transporter_me, name="transporter_me"),
+    path("transporters/stats/", transporters_api.transporter_stats, name="transporter_stats"),
 
     # Transporter drivers
-    path(
-        "transporters/drivers/",
-        transporters_api.transporter_drivers,
-        name="transporter_drivers",
-    ),
-    path(
-        "transporters/drivers/create/",
-        transporters_api.transporter_create_driver,
-        name="transporter_create_driver",
-    ),
+    path("transporters/drivers/", transporters_api.transporter_drivers, name="transporter_drivers"),
+    path("transporters/drivers/create/", transporters_api.transporter_create_driver, name="transporter_create_driver"),
 
     # Transporter vehicles
-    path(
-        "transporters/vehicles/",
-        transporters_api.transporter_vehicles,
-        name="transporter_vehicles",
-    ),
-    path(
-        "transporters/vehicles/create/",
-        transporters_api.transporter_create_vehicle,
-        name="transporter_create_vehicle",
-    ),
+    path("transporters/vehicles/", transporters_api.transporter_vehicles, name="transporter_vehicles"),
+    path("transporters/vehicles/create/", transporters_api.transporter_create_vehicle, name="transporter_create_vehicle"),
 
     # Transporter orders
-    path(
-        "transporters/orders/",
-        transporters_api.transporter_orders,
-        name="transporter_orders",
-    ),
-    path(
-        "transporters/orders/<int:pk>/assign/",
-        transporters_api.transporter_assign_order,
-        name="transporter_assign_order",
-    ),
+    path("transporters/orders/", transporters_api.transporter_orders, name="transporter_orders"),
+    path("transporters/orders/<int:pk>/assign/", transporters_api.transporter_assign_order, name="transporter_assign_order"),
 
-    # Transporter wallet / notifications
+    # Transporter wallet
+    path("transporters/wallet/", transporters_api.transporter_wallet, name="transporter_wallet"),
+
+    # Old transporter notification placeholder - kept for compatibility
+    path("transporters/notifications/send/", transporters_api.transporter_send_notification, name="transporter_send_notification"),
+
+    # Notifications V1 - Firebase / FCM
+    path("notifications/health/", notifications_api.notifications_health, name="notifications_health"),
     path(
-        "transporters/wallet/",
-        transporters_api.transporter_wallet,
-        name="transporter_wallet",
+        "notifications/transporter/register-token/",
+        notifications_api.transporter_register_fcm_token,
+        name="transporter_register_fcm_token",
     ),
     path(
-        "transporters/notifications/send/",
-        transporters_api.transporter_send_notification,
-        name="transporter_send_notification",
+        "notifications/transporter/send-test/",
+        notifications_api.transporter_send_test_notification,
+        name="transporter_send_test_notification",
+    ),
+    path(
+        "notifications/captain/send-test/",
+        notifications_api.send_test_to_captain_by_id,
+        name="send_test_to_captain_by_id",
     ),
 ]

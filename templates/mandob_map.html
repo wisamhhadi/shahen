@@ -1295,5 +1295,385 @@ function updateSidebar() {
         // Auto-refresh every 30 seconds
         setInterval(loadMandobs, 30000);
     });
+
+// =====================================================
+// SHAHNCO FIX V2 - Mandob Monitoring Rendering Override
+// هذا البلوك يعالج مشكلة عدم ظهور قائمة المندوبين والعدادات
+// السبب كان أن بعض المندوبين لديهم latitude/longitude فارغة
+// مما يوقف updateMap قبل تنفيذ updateSidebar و updateStats
+// =====================================================
+
+function shahncoToNumber(value) {
+    if (value === null || value === undefined || value === '') {
+        return null;
+    }
+
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+}
+
+function shahncoIsTrue(value) {
+    return value === true || value === 'True' || value === 'true' || value === 1 || value === '1';
+}
+
+// Override: Load mandobs data safely
+function loadMandobs() {
+    showLoading(true);
+
+    fetch('/mandob_autocomplete_map?ts=' + Date.now(), { cache: 'no-store' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+
+            return response.json();
+        })
+        .then(data => {
+            mandobs = Array.isArray(data.results) ? data.results : [];
+
+            console.log('MANDOBS LOADED:', mandobs.length, mandobs);
+
+            try {
+                updateMap();
+            } catch (error) {
+                console.error('updateMap failed:', error);
+            }
+
+            try {
+                updateSidebar();
+            } catch (error) {
+                console.error('updateSidebar failed:', error);
+            }
+
+            try {
+                updateStats();
+            } catch (error) {
+                console.error('updateStats failed:', error);
+            }
+
+            showLoading(false);
+        })
+        .catch(error => {
+            console.error('Error loading mandobs:', error);
+            mandobs = [];
+            updateSidebar();
+            updateStats();
+            showLoading(false);
+        });
+}
+
+// Override: Determine mandob status safely
+function getMandobiStatus(mandob) {
+    const isActive = shahncoIsTrue(mandob.is_active);
+
+    const baseLat = shahncoToNumber(mandob.latitude);
+    const baseLng = shahncoToNumber(mandob.longitude);
+    const currentLat = shahncoToNumber(mandob.latitude2);
+    const currentLng = shahncoToNumber(mandob.longitude2);
+    const radius = shahncoToNumber(mandob.radius) || 500;
+
+    if (!isActive || currentLat === null || currentLng === null) {
+        return 'offline';
+    }
+
+    // إذا المندوب لديه موقع حالي لكن لا توجد منطقة/زون أساسية
+    // نعتبره متصل لكن يحتاج تحديد زون
+    if (baseLat === null || baseLng === null) {
+        return 'warning';
+    }
+
+    const distance = calculateDistance(baseLat, baseLng, currentLat, currentLng);
+
+    if (distance <= radius) {
+        return 'inside';
+    }
+
+    if (distance <= radius * 1.5) {
+        return 'warning';
+    }
+
+    return 'outside';
+}
+
+// Override: Update map without failing on null coordinates
+function updateMap() {
+    markers.forEach(marker => {
+        try {
+            map.removeLayer(marker);
+        } catch (e) {}
+    });
+
+    circles.forEach(circle => {
+        try {
+            map.removeLayer(circle);
+        } catch (e) {}
+    });
+
+    markers = [];
+    circles = [];
+
+    let firstValidPoint = null;
+
+    mandobs.forEach(mandob => {
+        const status = getMandobiStatus(mandob);
+
+        const baseLat = shahncoToNumber(mandob.latitude);
+        const baseLng = shahncoToNumber(mandob.longitude);
+        const currentLat = shahncoToNumber(mandob.latitude2);
+        const currentLng = shahncoToNumber(mandob.longitude2);
+        const radius = shahncoToNumber(mandob.radius) || 500;
+
+        let circleColor = '#6c757d';
+        let fillColor = '#6c757d';
+
+        switch (status) {
+            case 'inside':
+                circleColor = '#28a745';
+                fillColor = '#28a745';
+                break;
+            case 'outside':
+                circleColor = '#dc3545';
+                fillColor = '#dc3545';
+                break;
+            case 'warning':
+                circleColor = '#ffc107';
+                fillColor = '#ffc107';
+                break;
+            case 'offline':
+                circleColor = '#6c757d';
+                fillColor = '#6c757d';
+                break;
+        }
+
+        // يرسم الزون فقط إذا كانت إحداثيات الزون موجودة
+        if (baseLat !== null && baseLng !== null) {
+            const circle = L.circle([baseLat, baseLng], {
+                color: circleColor,
+                fillColor: fillColor,
+                fillOpacity: 0.2,
+                radius: radius,
+                weight: 2
+            }).addTo(map);
+
+            circle.bindPopup(`
+                <div class="text-center">
+                    <strong>${mandob.name || 'مندوب'}</strong><br>
+                    <small>المنطقة المخصصة</small><br>
+                    <small>النطاق: ${radius}م</small>
+                </div>
+            `);
+
+            circles.push(circle);
+
+            if (!firstValidPoint) {
+                firstValidPoint = [baseLat, baseLng];
+            }
+        }
+
+        // يرسم موقع المندوب الحالي إذا كان موجوداً حتى لو الزون غير موجود
+        if (currentLat !== null && currentLng !== null) {
+            const marker = L.marker([currentLat, currentLng]).addTo(map);
+
+            marker.bindPopup(`
+                <div class="text-center">
+                    <strong>${mandob.name || 'مندوب'}</strong><br>
+                    <small>الموقع الحالي</small><br>
+                    <small>هاتف: ${mandob.phone || 'غير محدد'}</small><br>
+                    <small>آخر تحديث: ${mandob.last_seen || 'غير معروف'}</small><br>
+                    <small>الحالة: ${getStatusText(status)}</small>
+                </div>
+            `);
+
+            marker.on('click', function() {
+                highlightMandob(mandob.id);
+            });
+
+            markers.push(marker);
+
+            if (!firstValidPoint) {
+                firstValidPoint = [currentLat, currentLng];
+            }
+        }
+    });
+
+    if (firstValidPoint) {
+        map.setView(firstValidPoint, 14);
+    }
+}
+
+// Override: Update sidebar with mandobs list safely
+function updateSidebar() {
+    const listContainer = document.getElementById('mandobsList');
+    const noResults = document.getElementById('noResults');
+
+    if (!listContainer) {
+        console.error('mandobsList not found');
+        return;
+    }
+
+    listContainer.innerHTML = '';
+
+    const filteredMandobs = filterMandobs();
+
+    if (filteredMandobs.length === 0) {
+        if (noResults) {
+            noResults.style.display = 'block';
+        }
+        return;
+    }
+
+    if (noResults) {
+        noResults.style.display = 'none';
+    }
+
+    filteredMandobs.forEach(mandob => {
+        const status = getMandobiStatus(mandob);
+
+        const mandobElement = document.createElement('div');
+        mandobElement.className = 'mandob-item';
+        mandobElement.setAttribute('data-mandob-id', mandob.id);
+
+        const infoLink = "/update_mandob/" + mandob.id;
+        const attendLink = "/list_attendance?mandob=" + mandob.id;
+        const historyLink = "/list_history?mandob=" + mandob.id;
+        const chatLink = "/chat/" + mandob.id;
+
+        const mandobName = mandob.name || 'مندوب بدون اسم';
+        const mandobPhone = mandob.phone || 'غير محدد';
+        const mandobId = String(mandob.id || '').padStart(3, '0');
+        const lastSeen = mandob.last_seen || 'غير معروف';
+
+        mandobElement.innerHTML = `
+            <div class="d-flex align-items-start">
+                <div class="mandob-status ${status}"></div>
+
+                <div class="mandob-info flex-grow-1">
+                    <h6>${mandobName}</h6>
+
+                    <div class="mandob-details">
+                        هاتف: ${mandobPhone} • ID: #${mandobId}
+                    </div>
+
+                    <small class="text-muted d-block mb-2">منذ ${lastSeen}</small>
+
+                    <div class="mandob-actions d-flex flex-wrap gap-1">
+                        <a href="${infoLink}" class="btn btn-success btn-sm" onclick="event.stopPropagation();">
+                            معلومات
+                        </a>
+
+                        <a href="${attendLink}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">
+                            الحضور
+                        </a>
+
+                        <a href="${historyLink}" class="btn btn-info btn-sm" onclick="event.stopPropagation();">
+                            سجل العمل
+                        </a>
+
+                        <a href="${chatLink}" class="btn btn-warning btn-sm" onclick="event.stopPropagation();">
+                            دردشة
+                        </a>
+
+                        <button type="button" class="btn btn-primary btn-sm mandob-location-btn">
+                            موقع المندوب
+                        </button>
+
+                        <button type="button" class="btn btn-danger btn-sm mandob-zone-btn">
+                            زون العمل
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        mandobElement.addEventListener('click', function () {
+            highlightMandob(mandob.id);
+            focusOnMandob(mandob);
+        });
+
+        const locationButton = mandobElement.querySelector('.mandob-location-btn');
+        const zoneButton = mandobElement.querySelector('.mandob-zone-btn');
+
+        if (locationButton) {
+            locationButton.addEventListener('click', function (event) {
+                event.stopPropagation();
+                focusOnMandob(mandob);
+            });
+        }
+
+        if (zoneButton) {
+            zoneButton.addEventListener('click', function (event) {
+                event.stopPropagation();
+                focusOnZone(mandob);
+            });
+        }
+
+        listContainer.appendChild(mandobElement);
+    });
+}
+
+// Override: Focus current location safely
+function focusOnMandob(mandob) {
+    clearSearchMarkers();
+
+    const currentLat = shahncoToNumber(mandob.latitude2);
+    const currentLng = shahncoToNumber(mandob.longitude2);
+    const baseLat = shahncoToNumber(mandob.latitude);
+    const baseLng = shahncoToNumber(mandob.longitude);
+
+    if (currentLat !== null && currentLng !== null) {
+        map.setView([currentLat, currentLng], 15);
+    } else if (baseLat !== null && baseLng !== null) {
+        map.setView([baseLat, baseLng], 15);
+    }
+}
+
+// Override: Focus zone safely
+function focusOnZone(mandob) {
+    clearSearchMarkers();
+
+    const baseLat = shahncoToNumber(mandob.latitude);
+    const baseLng = shahncoToNumber(mandob.longitude);
+
+    if (baseLat !== null && baseLng !== null) {
+        map.setView([baseLat, baseLng], 15);
+    } else {
+        focusOnMandob(mandob);
+    }
+}
+
+// Override: Update statistics correctly
+function updateStats() {
+    const total = mandobs.length;
+    let online = 0;
+    let inside = 0;
+    let outside = 0;
+
+    mandobs.forEach(mandob => {
+        const status = getMandobiStatus(mandob);
+
+        if (status !== 'offline') {
+            online++;
+        }
+
+        if (status === 'inside') {
+            inside++;
+        }
+
+        if (status === 'outside' || status === 'warning') {
+            outside++;
+        }
+    });
+
+    const totalEl = document.getElementById('totalMandobs');
+    const onlineEl = document.getElementById('onlineMandobs');
+    const insideEl = document.getElementById('insideRange');
+    const outsideEl = document.getElementById('outsideRange');
+
+    if (totalEl) totalEl.textContent = total;
+    if (onlineEl) onlineEl.textContent = online;
+    if (insideEl) insideEl.textContent = inside;
+    if (outsideEl) outsideEl.textContent = outside;
+}
+
 </script>
 {% endblock %}

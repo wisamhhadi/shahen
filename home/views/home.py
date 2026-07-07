@@ -222,3 +222,95 @@ def get_daily_vehicles_count():
         ).count()
     except:
         return 0
+
+# ================================
+# Permission Groups Views
+# Add this block at the END of:
+# D:\shahenco_folder\Programmers\Source code\shahen\shahen\home\views.py
+# ================================
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
+from core.models import PermissionGroup
+from home.forms import permission_group_form
+
+
+@login_required
+def list_permission_group(request):
+    permission_groups = PermissionGroup.objects.all().order_by("-id")
+
+    return render(
+        request,
+        "list_permission_group.html",
+        {
+            "permission_groups": permission_groups,
+        },
+    )
+
+
+@login_required
+def create_permission_group(request):
+    if request.method == "POST":
+        form = permission_group_form(request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "تمت إضافة مجموعة الصلاحيات بنجاح")
+            return redirect("list_permission_group")
+    else:
+        form = permission_group_form()
+
+    return render(
+        request,
+        "permission_group_form.html",
+        {
+            "form": form,
+            "title": "إضافة صلاحيات",
+            "button_text": "حفظ",
+        },
+    )
+
+
+@login_required
+def update_permission_group(request, pk):
+    permission_group = get_object_or_404(PermissionGroup, pk=pk)
+
+    if request.method == "POST":
+        form = permission_group_form(request.POST, instance=permission_group)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "تم تعديل مجموعة الصلاحيات بنجاح")
+            return redirect("list_permission_group")
+    else:
+        form = permission_group_form(instance=permission_group)
+
+    return render(
+        request,
+        "permission_group_form.html",
+        {
+            "form": form,
+            "title": "تعديل صلاحيات",
+            "button_text": "تحديث",
+        },
+    )
+
+
+@login_required
+def delete_permission_group(request, pk):
+    permission_group = get_object_or_404(PermissionGroup, pk=pk)
+
+    if request.method == "POST":
+        permission_group.delete()
+        messages.success(request, "تم حذف مجموعة الصلاحيات بنجاح")
+        return redirect("list_permission_group")
+
+    return render(
+        request,
+        "delete_permission_group.html",
+        {
+            "permission_group": permission_group,
+        },
+    )

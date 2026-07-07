@@ -139,6 +139,17 @@ urlpatterns = [
     path('year_mandob_question_view', year_mandob_question_view, name='year_mandob_question_view'),
     path('custom_mandob_question_view', custom_mandob_question_view, name='custom_mandob_question_view'),
 
+    # Permission Groups
+    path('permission_groups', list_permission_group, name='list_permission_group'),
+    path('permission_groups/create', create_permission_group, name='create_permission_group'),
+    path('permission_groups/update/<int:pk>', update_permission_group, name='update_permission_group'),
+    path('permission_groups/delete/<int:pk>', delete_permission_group, name='delete_permission_group'),
+        # Permission Groups
+    path('permission_groups', list_permission_group, name='list_permission_group'),
+    path('permission_groups/create', create_permission_group, name='create_permission_group'),
+    path('permission_groups/update/<int:pk>', update_permission_group, name='update_permission_group'),
+    path('permission_groups/delete/<int:pk>', delete_permission_group, name='delete_permission_group'),
+
     path('permission_group_autocomplete', permission_group_autocomplete.as_view(), name='permission_group_autocomplete'),
     path('admin_autocomplete', admin_autocomplete.as_view(), name='admin_autocomplete'),
     path('mandob_autocomplete', mandob_autocomplete.as_view(), name='mandob_autocomplete'),

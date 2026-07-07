@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">
+                حذف مجموعة صلاحيات
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <p class="fs-5">
+                هل أنت متأكد من حذف:
+                <strong>{{ permission_group }}</strong> ؟
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <button type="submit" class="btn btn-danger">
+                    نعم، حذف
+                </button>
+
+                <a href="{% url 'list_permission_group' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

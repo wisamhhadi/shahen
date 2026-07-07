@@ -1,4 +1,5 @@
 {% load static %}
+{% load permission_tags %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -979,6 +980,52 @@
         top: calc(10px + (110px * var(--stack-index, 1)));
     }
 }
+
+/* ================================
+   Shahnco Sidebar Permission UI Fix
+   ================================ */
+html,
+body {
+    overflow-x: hidden !important;
+}
+
+.sidebar {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.submenu {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+.submenu.show {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.menu,
+.menu-item,
+.menu-link,
+.menu-content,
+.submenu,
+.submenu-link {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.menu-link,
+.submenu-link {
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+}
+
+.sidebar::-webkit-scrollbar:horizontal,
+.sidebar *::-webkit-scrollbar:horizontal {
+    height: 0 !important;
+    display: none !important;
+}
+
     </style>
 </head>
 <body>
@@ -1021,9 +1068,10 @@
 
         <!-- Menu -->
         <div class="menu">
+            {% if request.user.is_authenticated %}
+
             <!-- Home -->
-                {% if request.user.is_authenticated or request.user.is_superuser or request.user.is_staff %}
-                                <div class="menu-item">
+            <div class="menu-item">
                 <a href="{% url 'home' %}" class="menu-link">
                     <div class="menu-content">
                         <div class="menu-icon">
@@ -1034,7 +1082,8 @@
                 </a>
             </div>
 
-            <!-- Users Dropdown -->
+            <!-- Managers Dropdown -->
+            {% if request.user|has_perm_key:"admin:list" or request.user|has_perm_key:"permission_group:list" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
@@ -1047,24 +1096,29 @@
                 </a>
 
                 <div class="submenu">
+                    {% if request.user|has_perm_key:"admin:list" %}
                     <a href="{% url 'list_admin' %}" class="submenu-link">
                         <div class="submenu-icon">
                             <i class="fas fa-user-tie"></i>
                         </div>
                         <span>الموظفين</span>
                     </a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"permission_group:list" %}
                     <a href="{% url 'list_permission_group' %}" class="submenu-link">
-                         <div class="submenu-icon">
+                        <div class="submenu-icon">
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <span>الصلاحيات</span>
                     </a>
-
-
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
 
-
+            <!-- Users Dropdown -->
+            {% if request.user|has_perm_key:"user:list" or request.user|has_perm_key:"merchant:list" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
@@ -1077,29 +1131,34 @@
                 </a>
 
                 <div class="submenu">
-
+                    {% if request.user|has_perm_key:"user:list" %}
                     <a href="{% url 'list_user' %}" class="submenu-link">
                         <div class="submenu-icon">
                             <i class="fas fa-user-friends"></i>
                         </div>
                         <span>المستخدمين</span>
                     </a>
+                    {% endif %}
 
+                    {% if request.user|has_perm_key:"merchant:list" %}
                     <a href="{% url 'list_user' %}?type=company" class="submenu-link">
                         <div class="submenu-icon">
-                            <i class="fas fa-user-friends"></i>
+                            <i class="fas fa-store"></i>
                         </div>
                         <span>التجار</span>
                     </a>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
 
-
+            <!-- Transporters Dropdown -->
+            {% if request.user|has_perm_key:"delivery_company:list" or request.user|has_perm_key:"captain:list" or request.user|has_perm_key:"car:list" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
                         <div class="menu-icon">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-truck"></i>
                         </div>
                         <span class="menu-text">الناقلين</span>
                     </div>
@@ -1107,30 +1166,38 @@
                 </a>
 
                 <div class="submenu">
+                    {% if request.user|has_perm_key:"delivery_company:list" %}
                     <a href="{% url 'list_delivery_company' %}" class="submenu-link">
                         <div class="submenu-icon">
                             <i class="fas fa-shipping-fast"></i>
                         </div>
                         <span>الناقلين</span>
                     </a>
+                    {% endif %}
 
+                    {% if request.user|has_perm_key:"captain:list" %}
                     <a href="{% url 'list_captain' %}" class="submenu-link">
                         <div class="submenu-icon">
                             <i class="fas fa-user-cog"></i>
                         </div>
                         <span>السائقين</span>
                     </a>
+                    {% endif %}
 
+                    {% if request.user|has_perm_key:"car:list" %}
                     <a href="{% url 'list_car' %}" class="submenu-link">
                         <div class="submenu-icon">
-                            <i class="fas fa-user-cog"></i>
+                            <i class="fas fa-truck-moving"></i>
                         </div>
                         <span>المركبات</span>
                     </a>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
 
-                    
+            <!-- Mandobs -->
+            {% if request.user|has_perm_key:"mandob:list" %}
             <div class="menu-item">
                 <a href="{% url 'list_mandob' %}" class="menu-link">
                     <div class="menu-content">
@@ -1141,13 +1208,15 @@
                     </div>
                 </a>
             </div>
+            {% endif %}
 
-
+            <!-- Reports Dropdown -->
+            {% if request.user|has_perm_key:"financial_report:list" or request.user|has_perm_key:"order:list" or request.user|has_perm_key:"mandob:list" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
                         <div class="menu-icon">
-                            <i class="fas fa-calculator"></i>
+                            <i class="fas fa-chart-line"></i>
                         </div>
                         <span class="menu-text">التقارير</span>
                     </div>
@@ -1155,63 +1224,54 @@
                 </a>
 
                 <div class="submenu">
+                    {% if request.user|has_perm_key:"financial_report:list" %}
                     <a href="{% url 'create_custom_report' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-plus-circle"></i></div>
                         <span>انشاء تقرير استبياني</span>
                     </a>
 
                     <a href="{% url 'list_custom_reports' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-ticket-alt"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-file-alt"></i></div>
                         <span>تقارير استبيانية</span>
                     </a>
 
-
                     <a href="{% url 'list_report' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-ticket-alt"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-file-invoice"></i></div>
                         <span>تقارير دورية</span>
                     </a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"order:list" or request.user|has_perm_key:"financial_report:list" %}
                     <a href="{% url 'list_order_report' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-receipt"></i></div>
                         <span>تقارير الفواتير</span>
                     </a>
+                    {% endif %}
 
-
+                    {% if request.user|has_perm_key:"mandob:list" %}
                     <a href="{% url 'day_mandob_question_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-calendar-day"></i></div>
                         <span>الاسئلة اليومية</span>
                     </a>
                     <a href="{% url 'week_mandob_question_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-calendar-week"></i></div>
                         <span>الاسئلة الاسبوعية</span>
                     </a>
                     <a href="{% url 'month_mandob_question_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-calendar-alt"></i></div>
                         <span>الاسئلة الشهرية</span>
                     </a>
                     <a href="{% url 'year_mandob_question_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-calendar"></i></div>
                         <span>الاسئلة السنوية</span>
                     </a>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <!-- Orders -->
+            {% if request.user|has_perm_key:"order:list" %}
             <div class="menu-item">
                 <a href="{% url 'list_order' %}" class="menu-link">
                     <div class="menu-content">
@@ -1222,10 +1282,10 @@
                     </div>
                 </a>
             </div>
-
-
+            {% endif %}
 
             <!-- Accounting Dropdown -->
+            {% if request.user|has_perm_key:"pay:list" or request.user|has_perm_key:"pre_paid:list" or request.user|has_perm_key:"fine:list" or request.user|has_perm_key:"financial_report:list" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
@@ -1238,34 +1298,39 @@
                 </a>
 
                 <div class="submenu">
+                    {% if request.user|has_perm_key:"pay:list" %}
                     <a href="{% url 'list_pay' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-exchange-alt"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-exchange-alt"></i></div>
                         <span>سحب وايداع رصيد</span>
                     </a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"pre_paid:list" %}
                     <a href="{% url 'list_pre_paid' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-ticket-alt"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-ticket-alt"></i></div>
                         <span>اكواد الرصيد</span>
                     </a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"fine:list" %}
                     <a href="{% url 'list_fine' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-ticket-alt"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-exclamation-triangle"></i></div>
                         <span>الغرامات</span>
                     </a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"financial_report:list" %}
                     <a href="{% url 'list_permission_group' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-user-shield"></i></div>
                         <span>(soon) الحسابات</span>
                     </a>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <!-- System Settings Dropdown -->
+            {% if request.user|has_perm_key:"country:list" or request.user|has_perm_key:"province:list" or request.user|has_perm_key:"specialty:list" or request.user|has_perm_key:"language:list" or request.user|has_perm_key:"activity_type:list" or request.user|has_perm_key:"car_company:list" or request.user|has_perm_key:"car_color:list" or request.user|has_perm_key:"car_category:list" or request.user|has_perm_key:"car_size_main:list" or request.user|has_perm_key:"car_size_sub:list" or request.user|has_perm_key:"trailer:list" or request.user|has_perm_key:"car_model:list" or request.user|has_perm_key:"goods_type:list" or request.user|has_perm_key:"car_letter:list" or request.user|has_perm_key:"blog:list" or request.user|has_perm_key:"banner:list" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
@@ -1278,101 +1343,71 @@
                 </a>
 
                 <div class="submenu">
-                    <a href="{% url 'country_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                        <span>الدول</span>
-                    </a>
-                    <a href="{% url 'list_province' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-map-marked-alt"></i>
-                        </div>
-                        <span>المحافظات</span>
-                    </a>
-                    <a href="{% url 'specialty_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-award"></i>
-                        </div>
-                        <span>التخصصات</span>
-                    </a>
-                    <a href="{% url 'language_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-language"></i>
-                        </div>
-                        <span>اللغات</span>
-                    </a>
-                    <a href="{% url 'activity_type_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <span>انواع الانشطة</span>
-                    </a>
-                    <a href="{% url 'car_company_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-industry"></i>
-                        </div>
-                        <span>شركات السيارات</span>
-                    </a>
-                    <a href="{% url 'car_color_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <span>الوان السيارات</span>
-                    </a>
-                    <a href="{% url 'car_category_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-car-side"></i>
-                        </div>
-                        <span>فئات السيارات</span>
-                    </a>
+                    {% if request.user|has_perm_key:"country:list" %}
+                    <a href="{% url 'country_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-globe"></i></div><span>الدول</span></a>
+                    {% endif %}
 
-                    <a href="{% url 'car_size_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-car-side"></i>
-                        </div>
-                        <span>احجام السيارات</span>
-                    </a>
-                    <a href="{% url 'list_trailer' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-trailer"></i>
-                        </div>
-                        <span>انواع المقطورات</span>
-                    </a>
-                    <a href="{% url 'car_model_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-car"></i>
-                        </div>
-                        <span>موديلات السيارات</span>
-                    </a>
-                    <a href="{% url 'goods_type_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-dolly"></i>
-                        </div>
-                        <span>انواع الحمولة</span>
-                    </a>
-                    <a href="{% url 'car_letter_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-font"></i>
-                        </div>
-                        <span>تعريف الحروف</span>
-                    </a>
-                    <a href="{% url 'blog_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-blog"></i>
-                        </div>
-                        <span>المدونة</span>
-                    </a>
-                    <a href="{% url 'banner_view' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-images"></i>
-                        </div>
-                        <span>البنرات</span>
-                    </a>
+                    {% if request.user|has_perm_key:"province:list" %}
+                    <a href="{% url 'list_province' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-map-marked-alt"></i></div><span>المحافظات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"specialty:list" %}
+                    <a href="{% url 'specialty_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-award"></i></div><span>التخصصات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"language:list" %}
+                    <a href="{% url 'language_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-language"></i></div><span>اللغات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"activity_type:list" %}
+                    <a href="{% url 'activity_type_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-tasks"></i></div><span>انواع الانشطة</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"car_company:list" %}
+                    <a href="{% url 'car_company_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-industry"></i></div><span>شركات السيارات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"car_color:list" %}
+                    <a href="{% url 'car_color_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-palette"></i></div><span>الوان السيارات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"car_category:list" %}
+                    <a href="{% url 'car_category_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-car-side"></i></div><span>فئات السيارات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"car_size_main:list" or request.user|has_perm_key:"car_size_sub:list" %}
+                    <a href="{% url 'car_size_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-car-side"></i></div><span>احجام السيارات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"trailer:list" %}
+                    <a href="{% url 'list_trailer' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-trailer"></i></div><span>انواع المقطورات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"car_model:list" %}
+                    <a href="{% url 'car_model_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-car"></i></div><span>موديلات السيارات</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"goods_type:list" %}
+                    <a href="{% url 'goods_type_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-dolly"></i></div><span>انواع الحمولة</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"car_letter:list" %}
+                    <a href="{% url 'car_letter_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-font"></i></div><span>تعريف الحروف</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"blog:list" %}
+                    <a href="{% url 'blog_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-blog"></i></div><span>المدونة</span></a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"banner:list" %}
+                    <a href="{% url 'banner_view' %}" class="submenu-link"><div class="submenu-icon"><i class="fas fa-images"></i></div><span>البنرات</span></a>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
 
             <!-- Others Dropdown -->
+            {% if request.user|has_perm_key:"notification:list" or request.user|has_perm_key:"info:list" or request.user|has_perm_key:"info:update" %}
             <div class="menu-item">
                 <a href="#" class="menu-link" onclick="toggleSubmenu(this)">
                     <div class="menu-content">
@@ -1385,75 +1420,47 @@
                 </a>
 
                 <div class="submenu">
+                    {% if request.user|has_perm_key:"notification:list" %}
                     <a href="{% url 'list_notification' %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-bell"></i></div>
                         <span>اشعارات</span>
                     </a>
+                    {% endif %}
+
+                    {% if request.user|has_perm_key:"info:list" or request.user|has_perm_key:"info:update" %}
                     <a href="{% url 'update_info' 1 %}" class="submenu-link">
-                        <div class="submenu-icon">
-                            <i class="fas fa-sliders-h"></i>
-                        </div>
+                        <div class="submenu-icon"><i class="fas fa-sliders-h"></i></div>
                         <span>اعدادات</span>
                     </a>
+                    {% endif %}
                 </div>
             </div>
-                 {% endif %}
-
-
-                {% if request.user.is_staff  %}
-                      <div class="menu-item">
-                            <a href="{% url 'mandob_map' %}" class="menu-link">
-                            <div class="menu-content">
-                                <div class="menu-icon">
-                                    <i class="fas fa-map-marker"></i>
-                                </div>
-                                <span class="menu-text">مراقبة المندوبين</span>
-                            </div>
-                        </a>
-                      </div>
-
-                    <div class="menu-item">
-                            <a href="{% url 'list_mandob' %}" class="menu-link">
-                            <div class="menu-content">
-                                <div class="menu-icon">
-                                    <i class="fas fa-truck"></i>
-                                </div>
-                                <span class="menu-text">المندوبين</span>
-                            </div>
-                        </a>
-                      </div>
-
-
-                    <div class="menu-item">
-                            <a href="{% url 'list_report' %}" class="menu-link">
-                            <div class="menu-content">
-                                <div class="menu-icon">
-                                    <i class="fas fa-file"></i>
-                                </div>
-                                <span class="menu-text">تقارير استبيانية</span>
-                            </div>
-                        </a>
-                      </div>
-
-
-                    <div class="menu-item">
-                            <a href="{% url 'list_order_report' %}" class="menu-link">
-                            <div class="menu-content">
-                                <div class="menu-icon">
-                                    <i class="fas fa-file-text"></i>
-                                </div>
-                                <span class="menu-text">تقارير الفواتير</span>
-                            </div>
-                        </a>
-                      </div>
             {% endif %}
 
+            <!-- Tracking Shortcuts -->
+            {% if request.user|has_perm_key:"mandob:list" %}
+            <div class="menu-item">
+                <a href="{% url 'mandob_map' %}" class="menu-link">
+                    <div class="menu-content">
+                        <div class="menu-icon"><i class="fas fa-map-marker"></i></div>
+                        <span class="menu-text">مراقبة المندوبين</span>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
 
+            {% if request.user|has_perm_key:"captain:list" %}
+            <div class="menu-item">
+                <a href="{% url 'captain_map' %}" class="menu-link">
+                    <div class="menu-content">
+                        <div class="menu-icon"><i class="fas fa-map"></i></div>
+                        <span class="menu-text">مراقبة السائقين</span>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
 
-
-
+            {% endif %}
         </div>
     </nav>
 
@@ -1461,20 +1468,24 @@
     <main class="main-content">
     <div class="floating-toolbar">
 {% if request.user.is_authenticated %}
-        <!-- Admin quick access icons -->
+        {% if request.user|has_perm_key:"mandob:create" %}
         <a href="{% url 'create_mandob' %}" class="toolbar-icon" title="مندوب جديد">
             <i class="fas fa-plus"></i>
         </a>
+        {% endif %}
+
+        {% if request.user|has_perm_key:"mandob:list" %}
         <a href="{% url 'mandob_map' %}" class="toolbar-icon" title="مراقبة المندوبين">
             <i class="fas fa-map-marked-alt"></i>
         </a>
+        {% endif %}
 
+        {% if request.user|has_perm_key:"captain:list" %}
         <a href="{% url 'captain_map' %}" class="toolbar-icon" title="مراقبة السائقين">
             <i class="fas fa-users-cog"></i>
         </a>
-
-
-    {% endif %}
+        {% endif %}
+{% endif %}
 </div>
         <div class="content-wrapper fade-in">
             {% block content %}

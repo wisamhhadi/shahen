@@ -21,7 +21,14 @@
                 {% for field in form %}
                     <div class="mb-3">
                         <label class="form-label fw-bold">{{ field.label }}</label>
-                        {{ field }}
+
+                        {% if field.name == "permission" %}
+                            <div class="permissions-box">
+                                {{ field }}
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
 
                         {% if field.errors %}
                             <div class="text-danger small mt-1">
@@ -47,4 +54,61 @@
     </div>
 
 </div>
+
+<style>
+    .permissions-box {
+        max-height: 430px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 1px solid #ced4da;
+        border-radius: 10px;
+        padding: 15px;
+        background: #ffffff;
+        direction: rtl;
+    }
+
+    .permissions-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
+        gap: 10px;
+    }
+
+    .permissions-box li {
+        background: #f8f9fa;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .permissions-box label {
+        cursor: pointer;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .permissions-box input[type="checkbox"] {
+        transform: scale(1.15);
+        cursor: pointer;
+    }
+
+    @media (max-width: 1200px) {
+        .permissions-box ul {
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .permissions-box ul {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock %}

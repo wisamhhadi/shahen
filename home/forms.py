@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
-
+from django import forms
 from captain.models import Captain
 from core.models import Admin, PermissionGroup, Language, Country, Province, Specialty, CarCompany, CarModel, CarColor, \
     CarCategory, GoodsType, Trailer, CarLetter, CarSize, ActivityType, Car, Pay, PrePaid, Notification, Info, Banner, \
@@ -306,11 +306,14 @@ class user_form_update(GenericForm):
         return self.instance
 
 
-class permission_group_form(GenericForm):
+class permission_group_form(forms.ModelForm):
     class Meta:
         model = PermissionGroup
-        fields = '__all__'
-        exclude = ['employee']
+        fields = "__all__"
+        widgets = {
+            "permission": forms.CheckboxSelectMultiple(),
+        },
+        
 
 
 class language_form(GenericForm):

@@ -1064,79 +1064,107 @@ if (navigator.geolocation) {
         }
     }
 
-    // Update sidebar with mandobs list
-    function updateSidebar() {
-        const listContainer = document.getElementById('mandobsList');
-        listContainer.innerHTML = '';
+// Update sidebar with mandobs list
+function updateSidebar() {
+    const listContainer = document.getElementById('mandobsList');
+    listContainer.innerHTML = '';
 
-        const filteredMandobs = filterMandobs();
+    const filteredMandobs = filterMandobs();
 
-        if (filteredMandobs.length === 0) {
-            document.getElementById('noResults').style.display = 'block';
-            return;
-        } else {
-            document.getElementById('noResults').style.display = 'none';
-        }
+    if (filteredMandobs.length === 0) {
+        document.getElementById('noResults').style.display = 'block';
+        return;
+    } else {
+        document.getElementById('noResults').style.display = 'none';
+    }
 
-        filteredMandobs.forEach(mandob => {
-            const status = getMandobiStatus(mandob);
-            const statusClass = status;
+    filteredMandobs.forEach(mandob => {
+        const status = getMandobiStatus(mandob);
+        const statusClass = status;
 
-            const mandobElement = document.createElement('div');
+        const mandobElement = document.createElement('div');
+        mandobElement.className = 'mandob-item';
+        mandobElement.setAttribute('data-mandob-id', mandob.id);
 
-            const mandobGetZoneButton = document.createElement('a');
-            mandobGetZoneButton.className = "btn btn-danger btn-sm";
-            mandobGetZoneButton.innerHTML = "زون العمل";
+        const infoLink = "/update_mandob/" + mandob.id;
+        const attendLink = "/list_attendance?mandob=" + mandob.id;
+        const historyLink = "/list_history?mandob=" + mandob.id;
+        const chatLink = "/chat/" + mandob.id;
 
-            const mandobGetLocationButton = document.createElement('a');
-            mandobGetLocationButton.className = "btn btn-primary btn-sm";
-            mandobGetLocationButton.innerHTML = "موقع المندوب";
+        const mandobName = mandob.name || 'مندوب بدون اسم';
+        const mandobPhone = mandob.phone || 'لا يوجد هاتف';
+        const mandobId = String(mandob.id || '').padStart(3, '0');
+        const lastSeen = mandob.last_seen || 'غير محدد';
 
-            mandobElement.className = 'mandob-item';
-            mandobElement.setAttribute('data-mandob-id', mandob.id);
-            let infoLink = "/update_mandob/" + mandob.id;
-            let attendLink = "/list_attendance?mandob=" + mandob.id;
-            let historyLink = "/list_history?mandob=" + mandob.id;
-            let reportLink = "/list_report?mandob=" + mandob.id;
-            let orderReportLink = "/list_order_report?mandob=" + mandob.id;
-            let chatLink = "/chat/" + mandob.id;
-            mandobElement.innerHTML = `
-                <div class="d-flex align-items-start">
-                    <div class="mandob-status ${statusClass}"></div>
-                    <div class="mandob-info flex-grow-1">
-                        <h6>${mandob.name}</h6>
-                        <div class="mandob-details">
-                            هاتف: ${mandob.phone} • ID: #${String(mandob.id).padStart(3, '0')}
-                        </div>
-                        <div class="">
-                            <input type="hidden" value="${mandob.id}">
-                            <a href="` + infoLink +`" class="btn btn-success btn-sm">معلومات</a>
-                            <a href="` + attendLink + `" class="btn btn-secondary btn-sm">الحظور</a>
-                            <a href="` + historyLink + `" class="btn btn-info btn-sm">سجل العمل</a>
-                            <a href="` + chatLink + `" class="btn btn-warning btn-sm">دردشة</a>
-                        </div>
+        mandobElement.innerHTML = `
+            <div class="d-flex align-items-start">
+                <div class="mandob-status ${statusClass}"></div>
+
+                <div class="mandob-info flex-grow-1">
+                    <h6>${mandobName}</h6>
+
+                    <div class="mandob-details">
+                        هاتف: ${mandobPhone} • ID: #${mandobId}
                     </div>
-                    <div class="text-end">
-                        <small class="text-muted">منذ ${mandob.last_seen}</small>
+
+                    <div class="mandob-actions mt-2 d-flex flex-wrap gap-1">
+                        <a href="${infoLink}" class="btn btn-success btn-sm" onclick="event.stopPropagation();">
+                            معلومات
+                        </a>
+
+                        <a href="${attendLink}" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">
+                            الحضور
+                        </a>
+
+                        <a href="${historyLink}" class="btn btn-info btn-sm" onclick="event.stopPropagation();">
+                            سجل العمل
+                        </a>
+
+                        <a href="${chatLink}" class="btn btn-warning btn-sm" onclick="event.stopPropagation();">
+                            دردشة
+                        </a>
+
+                        <button type="button" class="btn btn-primary btn-sm mandob-location-btn">
+                            موقع المندوب
+                        </button>
+
+                        <button type="button" class="btn btn-danger btn-sm mandob-zone-btn">
+                            زون العمل
+                        </button>
                     </div>
                 </div>
-            `;
-            mandobElement.addEventListener('click', function() {
-                highlightMandob(mandob.id);
-            });
-            mandobElement.children[0].children[1].children[2].append(mandobGetLocationButton);
-            mandobElement.children[0].children[1].children[2].append(mandobGetZoneButton);
 
-            mandobGetZoneButton.addEventListener('click',function () {
-                focusOnZone(mandob);
-            })
-            mandobGetLocationButton.addEventListener('click',function () {
-                focusOnMandob(mandob);
-            })
+                <div class="text-end">
+                    <small class="text-muted">منذ ${lastSeen}</small>
+                </div>
+            </div>
+        `;
 
-            listContainer.appendChild(mandobElement);
+        mandobElement.addEventListener('click', function () {
+            highlightMandob(mandob.id);
+            focusOnMandob(mandob);
         });
-    }
+
+        const locationButton = mandobElement.querySelector('.mandob-location-btn');
+        const zoneButton = mandobElement.querySelector('.mandob-zone-btn');
+
+        if (locationButton) {
+            locationButton.addEventListener('click', function (event) {
+                event.stopPropagation();
+                focusOnMandob(mandob);
+            });
+        }
+
+        if (zoneButton) {
+            zoneButton.addEventListener('click', function (event) {
+                event.stopPropagation();
+                focusOnZone(mandob);
+            });
+        }
+
+        listContainer.appendChild(mandobElement);
+    });
+}
 
     // Filter mandobs based on current filter and search
     function filterMandobs() {

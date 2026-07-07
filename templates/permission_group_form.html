@@ -19,8 +19,8 @@
                 {{ form.media }}
 
                 {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ field.label }}</label>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold fs-5">{{ field.label }}</label>
 
                         {% if field.name == "permission" %}
                             <div class="permissions-box">
@@ -39,12 +39,12 @@
                 {% endfor %}
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success px-4">
                         <i class="fas fa-save"></i>
                         {{ button_text }}
                     </button>
 
-                    <a href="{% url 'list_permission_group' %}" class="btn btn-secondary">
+                    <a href="{% url 'list_permission_group' %}" class="btn btn-secondary px-4">
                         رجوع
                     </a>
                 </div>
@@ -56,13 +56,19 @@
 </div>
 
 <style>
+    .card {
+        width: 100%;
+    }
+
     .permissions-box {
-        max-height: 430px;
+        width: 100%;
+        min-height: 520px;
+        max-height: 620px;
         overflow-y: auto;
         overflow-x: hidden;
         border: 1px solid #ced4da;
-        border-radius: 10px;
-        padding: 15px;
+        border-radius: 12px;
+        padding: 18px;
         background: #ffffff;
         direction: rtl;
     }
@@ -72,17 +78,20 @@
         padding: 0;
         margin: 0;
         display: grid;
-        grid-template-columns: repeat(3, minmax(220px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(4, minmax(220px, 1fr));
+        gap: 12px;
     }
 
     .permissions-box li {
         background: #f8f9fa;
-        border: 1px solid #e5e5e5;
-        border-radius: 8px;
-        padding: 8px 10px;
+        border: 1px solid #e1e5e9;
+        border-radius: 10px;
+        padding: 10px 12px;
         font-weight: 600;
         color: #212529;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
     }
 
     .permissions-box label {
@@ -91,15 +100,39 @@
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .permissions-box input[type="checkbox"] {
-        transform: scale(1.15);
+        width: 18px;
+        height: 18px;
         cursor: pointer;
+        accent-color: #198754;
     }
 
-    @media (max-width: 1200px) {
+    .permissions-box li:has(input[type="checkbox"]:checked) {
+        background: #e8f7ef;
+        border-color: #198754;
+        color: #146c43;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100% !important;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
+
+    @media (max-width: 1400px) {
+        .permissions-box ul {
+            grid-template-columns: repeat(3, minmax(220px, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
         .permissions-box ul {
             grid-template-columns: repeat(2, minmax(220px, 1fr));
         }

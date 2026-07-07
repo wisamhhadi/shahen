@@ -11,6 +11,7 @@ from order.models import Order, OrderCar
 from user.models import User
 from django.forms.widgets import TimeInput, DateInput, TextInput, Select, CheckboxInput
 from core.models import Fine
+from core.models import Permission, PermissionGroup
 
 
 class GenericForm(ModelForm):
@@ -307,12 +308,16 @@ class user_form_update(GenericForm):
 
 
 class permission_group_form(forms.ModelForm):
+    permission = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.filter(is_active=True).order_by("model_name", "name"),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="الصلاحيات",
+    )
+
     class Meta:
         model = PermissionGroup
-        fields = "__all__"
-        widgets = {
-            "permission": forms.CheckboxSelectMultiple(),
-        },
+        fields = ["name", "permission", "is_active"]
         
 
 
